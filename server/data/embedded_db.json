@@ -1,0 +1,611 @@
+{
+  "admins": [
+    {
+      "_id": "id_5d0ge5q1l_1789497762086",
+      "createdAt": "2026-09-15T18:42:42.085Z",
+      "updatedAt": "2026-09-15T18:42:42.085Z",
+      "name": "Vikram Sharma",
+      "email": "admin@techfix.com",
+      "password": "$2a$10$K99.RiBbzLYhj1KS2.p1bOBjp7UAUANzLr9HjKjGsJdHigp7jAY02",
+      "shopName": "TechFix Pro Care Hub",
+      "phone": "+91 98765 43210",
+      "address": "Shop 104, Tech Arcade, Cyber City, Bangalore",
+      "upiId": "techfix@upi",
+      "subscription": {
+        "plan": "PRO",
+        "status": "ACTIVE",
+        "startDate": "2026-09-15T18:42:42.085Z",
+        "expiresAt": "2026-10-15T18:42:42.085Z",
+        "price": 1999,
+        "billingCycle": "monthly",
+        "ticketLimit": 1000
+      }
+    }
+  ],
+  "tickets": [
+    {
+      "_id": "id_calddw7nv_1789497762105",
+      "createdAt": "2026-09-15T18:42:42.105Z",
+      "updatedAt": "2026-09-15T18:42:42.105Z",
+      "ticketId": "REP-1001",
+      "customer": {
+        "name": "Rahul Verma",
+        "phone": "+91 98112 34567",
+        "email": "rahul.verma@example.com",
+        "address": "Indiranagar, Bangalore"
+      },
+      "device": {
+        "type": "LAPTOP",
+        "brand": "Dell",
+        "model": "XPS 15 (9500)",
+        "serialNumber": "DLXPS-99281",
+        "accessoriesReceived": [
+          "Original 130W USB-C Charger",
+          "Laptop Sleeve"
+        ],
+        "passcode": "1994"
+      },
+      "issueDescription": "Screen flickering lines when tilted; heating up rapidly during video calls.",
+      "status": "IN_REPAIR",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-12T18:42:42.105Z",
+          "note": "Device intake logged",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "DIAGNOSING",
+          "timestamp": "2026-09-13T18:42:42.105Z",
+          "note": "EDP display cable worn out and fans clogged with dust.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "IN_REPAIR",
+          "timestamp": "2026-09-14T18:42:42.105Z",
+          "note": "Replacing EDP cable and applying thermal paste.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Vikram Sharma",
+      "estimatedDeliveryDate": "2026-09-16T18:42:42.105Z",
+      "estimatedCost": 3500,
+      "laborCost": 1500,
+      "finalCost": 3500,
+      "paymentStatus": "UNPAID",
+      "internalNotes": "Customer requested backup before thermal service."
+    },
+    {
+      "_id": "id_cq1748pm1_1789497762106",
+      "createdAt": "2026-09-15T18:42:42.106Z",
+      "updatedAt": "2026-09-15T18:42:42.106Z",
+      "ticketId": "REP-1002",
+      "customer": {
+        "name": "Ananya Iyer",
+        "phone": "+91 98200 88765",
+        "email": "ananya.iyer@example.com",
+        "address": "Koramangala 4th Block"
+      },
+      "device": {
+        "type": "MOBILE",
+        "brand": "Apple",
+        "model": "iPhone 14 Pro",
+        "serialNumber": "F2LXW198PN0",
+        "accessoriesReceived": [
+          "Spigen Case"
+        ],
+        "passcode": "582011"
+      },
+      "issueDescription": "Cracked front glass and touch unresponsive on lower half after drop.",
+      "status": "READY_FOR_DELIVERY",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-11T18:42:42.105Z",
+          "note": "Intake received",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "DIAGNOSING",
+          "timestamp": "2026-09-12T18:42:42.105Z",
+          "note": "OLED panel damaged; logic board intact.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "IN_REPAIR",
+          "timestamp": "2026-09-13T18:42:42.105Z",
+          "note": "OEM OLED assembly installed with TrueTone restored.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "QUALITY_CHECK",
+          "timestamp": "2026-09-14T18:42:42.105Z",
+          "note": "32-point hardware sensor & touch calibration passed.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "READY_FOR_DELIVERY",
+          "timestamp": "2026-09-15T14:42:42.105Z",
+          "note": "Device cleaned, sanitized, and packed for pickup.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Vikram Sharma",
+      "estimatedDeliveryDate": "2026-09-15T18:42:42.105Z",
+      "estimatedCost": 7500,
+      "laborCost": 1000,
+      "finalCost": 7500,
+      "paymentStatus": "PAID",
+      "internalNotes": "Customer verified screen before payment via UPI."
+    },
+    {
+      "_id": "id_658itgf8g_1789497762109",
+      "createdAt": "2026-09-15T18:42:42.109Z",
+      "updatedAt": "2026-09-15T18:42:42.109Z",
+      "ticketId": "REP-1003",
+      "customer": {
+        "name": "Siddharth Rao",
+        "phone": "+91 97411 22334",
+        "email": "sid.rao@example.com",
+        "address": "HSR Layout Sector 2"
+      },
+      "device": {
+        "type": "DESKTOP",
+        "brand": "Custom Built",
+        "model": "NZXT H510 Gaming Rig",
+        "serialNumber": "RIG-2024-88",
+        "accessoriesReceived": [
+          "Power Cable"
+        ],
+        "passcode": "N/A"
+      },
+      "issueDescription": "Random Blue Screen of Death (BSOD) crashes while gaming; burning smell noticed near SMPS.",
+      "status": "DIAGNOSING",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-14T18:42:42.105Z",
+          "note": "Rig checked in for full diagnostics",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "DIAGNOSING",
+          "timestamp": "2026-09-15T13:42:42.105Z",
+          "note": "SMPS 12V rail voltage fluctuating. Testing with bench PSU.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Vikram Sharma",
+      "estimatedDeliveryDate": "2026-09-17T18:42:42.105Z",
+      "estimatedCost": 6500,
+      "laborCost": 1200,
+      "finalCost": 6500,
+      "paymentStatus": "UNPAID",
+      "internalNotes": "Needs 650W PSU replacement approval."
+    },
+    {
+      "_id": "id_zc8xzmwrz_1789497762110",
+      "createdAt": "2026-09-15T18:42:42.110Z",
+      "updatedAt": "2026-09-15T18:42:42.110Z",
+      "ticketId": "REP-1004",
+      "customer": {
+        "name": "Pooja Mehta",
+        "phone": "+91 99011 44556",
+        "email": "pooja.mehta@example.com",
+        "address": "Whitefield Main Road"
+      },
+      "device": {
+        "type": "LAPTOP",
+        "brand": "Apple",
+        "model": "MacBook Air M2 (13-inch)",
+        "serialNumber": "C02G8792MD6R",
+        "accessoriesReceived": [
+          "35W Dual Charger",
+          "Incase Sleeve"
+        ],
+        "passcode": "2023"
+      },
+      "issueDescription": "Coffee spilled on keyboard. Spacebar and shift keys sticking. Battery indicator shows service recommended.",
+      "status": "WAITING_PARTS",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-13T18:42:42.105Z",
+          "note": "Received with liquid spill damage",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "DIAGNOSING",
+          "timestamp": "2026-09-14T18:42:42.105Z",
+          "note": "Ultrasonic board clean done. Needs new top case keyboard assembly.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "WAITING_PARTS",
+          "timestamp": "2026-09-15T10:42:42.105Z",
+          "note": "Ordered OEM Top Case from distributor. Expected arrival tomorrow.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Vikram Sharma",
+      "estimatedDeliveryDate": "2026-09-18T18:42:42.105Z",
+      "estimatedCost": 11500,
+      "laborCost": 2500,
+      "finalCost": 11500,
+      "paymentStatus": "PARTIAL",
+      "internalNotes": "50% advance received."
+    },
+    {
+      "_id": "id_7why8p5ez_1789497762112",
+      "createdAt": "2026-09-15T18:42:42.112Z",
+      "updatedAt": "2026-09-15T18:42:42.112Z",
+      "ticketId": "REP-1005",
+      "customer": {
+        "name": "Karan Malhotra",
+        "phone": "+91 98450 77123",
+        "email": "karan.m@example.com",
+        "address": "Jayanagar 9th Block"
+      },
+      "device": {
+        "type": "MOBILE",
+        "brand": "Samsung",
+        "model": "Galaxy S22 Ultra",
+        "serialNumber": "R5CW301889M",
+        "accessoriesReceived": [
+          "S-Pen included"
+        ],
+        "passcode": "7741"
+      },
+      "issueDescription": "Phone does not charge unless cable is pushed upwards forcefully. Moisture warning pops up.",
+      "status": "RECEIVED",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-15T18:42:42.105Z",
+          "note": "Device intake logged. Initial visual inspection shows lint and corrosion in Type-C port.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Vikram Sharma",
+      "estimatedDeliveryDate": "2026-09-16T18:42:42.105Z",
+      "estimatedCost": 1800,
+      "laborCost": 800,
+      "finalCost": 1800,
+      "paymentStatus": "UNPAID",
+      "internalNotes": "Check sub-board vs port pin cleaning."
+    },
+    {
+      "_id": "id_gkd5xx4ak_1789499237421",
+      "createdAt": "2026-09-15T19:07:17.421Z",
+      "updatedAt": "2026-09-15T19:07:26.596Z",
+      "ticketId": "REP-1006",
+      "customer": {
+        "name": "Kavita Nair",
+        "phone": "+91 98877 66554",
+        "email": "kavita.nair@example.com",
+        "address": ""
+      },
+      "device": {
+        "type": "MOBILE",
+        "brand": "OnePlus",
+        "model": "11 5G",
+        "serialNumber": "1P11-77890",
+        "accessoriesReceived": [],
+        "passcode": ""
+      },
+      "issueDescription": "Green line on AMOLED screen after software update",
+      "status": "READY_FOR_DELIVERY",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-15T19:07:17.421Z",
+          "note": "Device intake completed. Initial assessment pending.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "READY_FOR_DELIVERY",
+          "timestamp": "2026-09-15T19:07:23.644Z",
+          "note": "Screen replaced under warranty program, passed all touch & color tests",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Chief Tech",
+      "estimatedDeliveryDate": "2026-09-17T19:07:17.421Z",
+      "estimatedCost": 4200,
+      "laborCost": 1000,
+      "finalCost": 4720,
+      "paymentStatus": "PARTIAL",
+      "notificationsSent": {
+        "intakeWhatsApp": false,
+        "intakeEmail": false,
+        "readyWhatsApp": false,
+        "readyEmail": false
+      },
+      "internalNotes": "",
+      "notificationsSent.intakeEmail": true
+    }
+  ],
+  "inventory": [
+    {
+      "_id": "id_qi267g2st_1789497762089",
+      "createdAt": "2026-09-15T18:42:42.089Z",
+      "updatedAt": "2026-09-15T18:42:42.089Z",
+      "sku": "DSP-IPH13-OLED",
+      "name": "iPhone 13 OLED Display Assembly (OEM)",
+      "category": "MOBILE",
+      "brand": "Apple Compatible",
+      "stockQuantity": 4,
+      "minStockThreshold": 3,
+      "costPrice": 4200,
+      "sellingPrice": 6500,
+      "unit": "pcs",
+      "location": "Mobile Drawer M-1"
+    },
+    {
+      "_id": "id_tepwtibxv_1789497762090",
+      "createdAt": "2026-09-15T18:42:42.090Z",
+      "updatedAt": "2026-09-15T19:22:30.005Z",
+      "sku": "BAT-SAMS21-4000",
+      "name": "Samsung Galaxy S21 4000mAh Battery",
+      "category": "MOBILE",
+      "brand": "Samsung OEM",
+      "stockQuantity": 0,
+      "minStockThreshold": 3,
+      "costPrice": 1200,
+      "sellingPrice": 2200,
+      "unit": "pcs",
+      "location": "Mobile Drawer M-3"
+    },
+    {
+      "_id": "id_3ctuwyig2_1789497762092",
+      "createdAt": "2026-09-15T18:42:42.092Z",
+      "updatedAt": "2026-09-15T18:42:42.092Z",
+      "sku": "PRT-USBC-SUB",
+      "name": "Universal Type-C Charging Flex Board",
+      "category": "MOBILE",
+      "brand": "Generic",
+      "stockQuantity": 15,
+      "minStockThreshold": 5,
+      "costPrice": 250,
+      "sellingPrice": 850,
+      "unit": "pcs",
+      "location": "Mobile Bin B-2"
+    },
+    {
+      "_id": "id_wugmob4et_1789497762093",
+      "createdAt": "2026-09-15T18:42:42.093Z",
+      "updatedAt": "2026-09-15T18:42:42.093Z",
+      "sku": "DSP-156-FHD-IPS",
+      "name": "15.6\" Slim 30-Pin FHD IPS Screen (1920x1080)",
+      "category": "LAPTOP",
+      "brand": "BOE / LG",
+      "stockQuantity": 6,
+      "minStockThreshold": 2,
+      "costPrice": 3100,
+      "sellingPrice": 4800,
+      "unit": "pcs",
+      "location": "Rack L-1"
+    },
+    {
+      "_id": "id_r5r1uu4xf_1789497762096",
+      "createdAt": "2026-09-15T18:42:42.096Z",
+      "updatedAt": "2026-09-15T18:42:42.096Z",
+      "sku": "SSD-NVME-512GB",
+      "name": "Crucial P3 512GB PCIe M.2 NVMe SSD",
+      "category": "LAPTOP",
+      "brand": "Crucial",
+      "stockQuantity": 8,
+      "minStockThreshold": 4,
+      "costPrice": 2400,
+      "sellingPrice": 3600,
+      "unit": "pcs",
+      "location": "Rack L-4"
+    },
+    {
+      "_id": "id_4kiia58ru_1789497762097",
+      "createdAt": "2026-09-15T18:42:42.097Z",
+      "updatedAt": "2026-09-15T18:42:42.097Z",
+      "sku": "KBD-DELL-3500",
+      "name": "Dell Inspiron 3500 Backlit Keyboard",
+      "category": "LAPTOP",
+      "brand": "Dell Compatible",
+      "stockQuantity": 1,
+      "minStockThreshold": 3,
+      "costPrice": 850,
+      "sellingPrice": 1600,
+      "unit": "pcs",
+      "location": "Rack L-2"
+    },
+    {
+      "_id": "id_ddaf9h7js_1789497762099",
+      "createdAt": "2026-09-15T18:42:42.099Z",
+      "updatedAt": "2026-09-15T18:42:42.099Z",
+      "sku": "RAM-DDR4-16GB-3200",
+      "name": "Corsair Vengeance LPX 16GB DDR4 3200MHz",
+      "category": "DESKTOP",
+      "brand": "Corsair",
+      "stockQuantity": 5,
+      "minStockThreshold": 3,
+      "costPrice": 2600,
+      "sellingPrice": 3800,
+      "unit": "pcs",
+      "location": "Desktop Shelf D-1"
+    },
+    {
+      "_id": "id_jv3nh1e5e_1789497762100",
+      "createdAt": "2026-09-15T18:42:42.100Z",
+      "updatedAt": "2026-09-15T18:42:42.100Z",
+      "sku": "PSU-650W-BRZ",
+      "name": "Cooler Master MWE 650W Bronze V2 Power Supply",
+      "category": "DESKTOP",
+      "brand": "Cooler Master",
+      "stockQuantity": 3,
+      "minStockThreshold": 2,
+      "costPrice": 4100,
+      "sellingPrice": 5600,
+      "unit": "pcs",
+      "location": "Desktop Shelf D-4"
+    },
+    {
+      "_id": "id_y0zi83pzb_1789497762103",
+      "createdAt": "2026-09-15T18:42:42.103Z",
+      "updatedAt": "2026-09-15T19:07:17.410Z",
+      "sku": "THM-PST-MX4",
+      "name": "Arctic MX-4 High Performance Thermal Paste (4g)",
+      "category": "TOOLS_CONSUMABLES",
+      "brand": "Arctic",
+      "stockQuantity": 13,
+      "minStockThreshold": 4,
+      "costPrice": 450,
+      "sellingPrice": 850,
+      "unit": "tubes",
+      "location": "Workbench Toolset"
+    }
+  ],
+  "invoices": [
+    {
+      "_id": "id_cvdlnh099_1789497762114",
+      "createdAt": "2026-09-15T18:42:42.114Z",
+      "updatedAt": "2026-09-15T18:42:42.114Z",
+      "invoiceNumber": "INV-2026-0001",
+      "ticketId": "REP-1002",
+      "customer": {
+        "name": "Ananya Iyer",
+        "phone": "+91 98200 88765",
+        "email": "ananya.iyer@example.com",
+        "address": "Koramangala 4th Block"
+      },
+      "deviceSummary": "Apple iPhone 14 Pro - OEM OLED Display Assembly",
+      "items": [
+        {
+          "description": "iPhone 14 Pro OEM OLED Display Assembly",
+          "type": "PART",
+          "quantity": 1,
+          "unitPrice": 5800,
+          "total": 5800
+        },
+        {
+          "description": "Display Calibration & Installation Labor",
+          "type": "LABOR",
+          "quantity": 1,
+          "unitPrice": 1000,
+          "total": 1000
+        }
+      ],
+      "laborFee": 1000,
+      "subtotal": 6800,
+      "discount": 300,
+      "taxRate": 18,
+      "taxAmount": 1000,
+      "totalAmount": 7500,
+      "paidAmount": 7500,
+      "dueAmount": 0,
+      "paymentStatus": "PAID",
+      "paymentMethod": "UPI",
+      "notes": "Payment received via UPI. 90-day warranty applies.",
+      "warrantyInfo": "90 Days Service & Touch Warranty on replaced OLED panel."
+    },
+    {
+      "_id": "id_tf4b9q7l7_1789499246592",
+      "createdAt": "2026-09-15T19:07:26.592Z",
+      "updatedAt": "2026-09-15T19:07:26.592Z",
+      "invoiceNumber": "INV-2026-0002",
+      "ticketId": "REP-1006",
+      "customer": {
+        "email": "kavita.nair@example.com",
+        "name": "Kavita Nair",
+        "phone": "+91 98877 66554"
+      },
+      "deviceSummary": "OnePlus 11 5G - OEM AMOLED Panel",
+      "items": [
+        {
+          "description": "OnePlus 11 5G Fluid AMOLED Panel",
+          "type": "PART",
+          "quantity": 1,
+          "unitPrice": 3200,
+          "total": 3200
+        }
+      ],
+      "laborFee": 1000,
+      "subtotal": 4200,
+      "discount": 200,
+      "taxRate": 18,
+      "taxAmount": 720,
+      "totalAmount": 4720,
+      "paidAmount": 4200,
+      "dueAmount": 520,
+      "paymentStatus": "PARTIAL",
+      "paymentMethod": "UPI",
+      "notes": "Thank you for choosing TechFix Pro Care.",
+      "warrantyInfo": "90 Days Service Warranty on replaced parts."
+    }
+  ],
+  "notifications": [
+    {
+      "_id": "id_qkkurur2c_1789499243595",
+      "createdAt": "2026-09-15T19:07:23.595Z",
+      "updatedAt": "2026-09-15T19:07:23.595Z",
+      "ticketId": "REP-1006",
+      "recipientName": "Kavita Nair",
+      "recipientContact": "kavita.nair@example.com",
+      "channel": "EMAIL",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "🛠️ Repair Received: #REP-1006 - OnePlus 11 5G (TechFix Pro Care)",
+      "messageBody": "Sent to kavita.nair@example.com: 🛠️ Repair Received: #REP-1006 - OnePlus 11 5G (TechFix Pro Care)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<c14fc8a9-2938-be10-681a-1455002bece2@techfix.com>",
+        "previewUrl": "https://ethereal.email/message/aqmXZ1.qZeQKvROMaqmXa5W6vNXKjiywAAAAARS8GixdMvhSo9pRGDYnZhE"
+      }
+    },
+    {
+      "_id": "id_3oxxw3e63_1789499243608",
+      "createdAt": "2026-09-15T19:07:23.608Z",
+      "updatedAt": "2026-09-15T19:07:23.608Z",
+      "ticketId": "REP-1006",
+      "recipientName": "Kavita Nair",
+      "recipientContact": "+91 98877 66554",
+      "channel": "WHATSAPP",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "WhatsApp Notification: INTAKE_CONFIRMATION",
+      "messageBody": "🛠️ *TechFix Pro Care - Repair Intake Confirmation*\n\nHello *Kavita Nair*,\nWe have successfully received your device for service.\n\n📋 *Repair Ticket Details:*\n• *Ticket ID:* #REP-1006\n• *Device:* OnePlus 11 5G (MOBILE)\n• *Reported Issue:* Green line on AMOLED screen after software update\n• *Est. Delivery:* 9/18/2026\n\n🔍 *Track Live Status Anytime:*\nhttp://localhost:5173/track/REP-1006\n\n📍 *Store Address:* TechFix Hub, Ground Floor, Electronics Market, Main Road\n📞 *Helpline:* +91 98765 43210\n\nThank you for trusting *TechFix Pro Care*!",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/919887766554?text=%F0%9F%9B%A0%EF%B8%8F%20*TechFix%20Pro%20Care%20-%20Repair%20Intake%20Confirmation*%0A%0AHello%20*Kavita%20Nair*%2C%0AWe%20have%20successfully%20received%20your%20device%20for%20service.%0A%0A%F0%9F%93%8B%20*Repair%20Ticket%20Details%3A*%0A%E2%80%A2%20*Ticket%20ID%3A*%20%23REP-1006%0A%E2%80%A2%20*Device%3A*%20OnePlus%2011%205G%20(MOBILE)%0A%E2%80%A2%20*Reported%20Issue%3A*%20Green%20line%20on%20AMOLED%20screen%20after%20software%20update%0A%E2%80%A2%20*Est.%20Delivery%3A*%209%2F18%2F2026%0A%0A%F0%9F%94%8D%20*Track%20Live%20Status%20Anytime%3A*%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1006%0A%0A%F0%9F%93%8D%20*Store%20Address%3A*%20TechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%F0%9F%93%9E%20*Helpline%3A*%20%2B91%2098765%2043210%0A%0AThank%20you%20for%20trusting%20*TechFix%20Pro%20Care*!"
+      }
+    },
+    {
+      "_id": "id_74l2rv2f6_1789499246553",
+      "createdAt": "2026-09-15T19:07:26.553Z",
+      "updatedAt": "2026-09-15T19:07:26.553Z",
+      "ticketId": "REP-1006",
+      "recipientName": "Kavita Nair",
+      "recipientContact": "kavita.nair@example.com",
+      "channel": "EMAIL",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "🎉 READY FOR DELIVERY: #REP-1006 - OnePlus 11 5G (TechFix Pro Care)",
+      "messageBody": "Sent to kavita.nair@example.com: 🎉 READY FOR DELIVERY: #REP-1006 - OnePlus 11 5G (TechFix Pro Care)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<282b5b18-273a-4af4-0096-3ee3e4a2f945@techfix.com>",
+        "previewUrl": "https://ethereal.email/message/aqmXZ1.qZeQKvROMaqmXbvLvAxtdp0ZtAAAAAp2KGIOp9-vwQTYyG9b0KnA"
+      }
+    },
+    {
+      "_id": "id_hgynu7h8p_1789499246556",
+      "createdAt": "2026-09-15T19:07:26.556Z",
+      "updatedAt": "2026-09-15T19:07:26.556Z",
+      "ticketId": "REP-1006",
+      "recipientName": "Kavita Nair",
+      "recipientContact": "+91 98877 66554",
+      "channel": "WHATSAPP",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "WhatsApp Notification: READY_FOR_DELIVERY",
+      "messageBody": "✅ *GOOD NEWS! Your Device is Ready for Delivery*\n\nHello *Kavita Nair*,\nYour *OnePlus 11 5G* (Ticket *#REP-1006*) has been successfully repaired, inspected, and passed all quality tests.\n\n💰 *Billing Summary:*\n• *Total Payable:* ₹4200\n• *Payment Status:* UNPAID\n\n📍 *Pickup Location:*\nTechFix Hub, Ground Floor, Electronics Market, Main Road\n⏰ *Working Hours:* 10:00 AM – 8:30 PM (Mon - Sat)\n📞 *Support:* +91 98765 43210\n\nYou can view your detailed itemized invoice and tracking history here:\nhttp://localhost:5173/track/REP-1006\n\nPlease bring your Ticket ID #REP-1006 at the time of pickup!\n*TechFix Pro Care*",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/919887766554?text=%E2%9C%85%20*GOOD%20NEWS!%20Your%20Device%20is%20Ready%20for%20Delivery*%0A%0AHello%20*Kavita%20Nair*%2C%0AYour%20*OnePlus%2011%205G*%20(Ticket%20*%23REP-1006*)%20has%20been%20successfully%20repaired%2C%20inspected%2C%20and%20passed%20all%20quality%20tests.%0A%0A%F0%9F%92%B0%20*Billing%20Summary%3A*%0A%E2%80%A2%20*Total%20Payable%3A*%20%E2%82%B94200%0A%E2%80%A2%20*Payment%20Status%3A*%20UNPAID%0A%0A%F0%9F%93%8D%20*Pickup%20Location%3A*%0ATechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%E2%8F%B0%20*Working%20Hours%3A*%2010%3A00%20AM%20%E2%80%93%208%3A30%20PM%20(Mon%20-%20Sat)%0A%F0%9F%93%9E%20*Support%3A*%20%2B91%2098765%2043210%0A%0AYou%20can%20view%20your%20detailed%20itemized%20invoice%20and%20tracking%20history%20here%3A%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1006%0A%0APlease%20bring%20your%20Ticket%20ID%20%23REP-1006%20at%20the%20time%20of%20pickup!%0A*TechFix%20Pro%20Care*"
+      }
+    }
+  ]
+}
