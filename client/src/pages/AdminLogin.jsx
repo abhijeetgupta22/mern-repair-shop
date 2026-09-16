@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { ShieldCheck, Lock, Mail, ArrowRight, Sparkles, KeyRound, Wrench } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowRight, Sparkles, LogOut, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AdminLogin({ onNavigate }) {
-  const { login } = useAuth();
+  const { login, logout, isAuthenticated, admin } = useAuth();
   const [email, setEmail] = useState('admin@techfix.com');
   const [password, setPassword] = useState('adminpassword123');
   const [loading, setLoading] = useState(false);
@@ -30,6 +30,47 @@ export default function AdminLogin({ onNavigate }) {
     setError('');
   };
 
+  // If already authenticated, display direct dashboard shortcut
+  if (isAuthenticated && admin) {
+    return (
+      <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl p-8 space-y-6 text-center animate-fadeIn">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 mb-2">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+            Already Signed In
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            You are logged in as <strong className="text-slate-800 dark:text-slate-200">{admin.name}</strong> ({admin.email}) for <strong className="text-blue-600">{admin.shopName}</strong>.
+          </p>
+
+          <div className="space-y-3 pt-2">
+            <button
+              onClick={() => onNavigate('admin-dashboard')}
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition"
+            >
+              <span>Go to Admin Dashboard</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => {
+                logout();
+                setError('');
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold transition"
+            >
+              <LogOut className="w-4 h-4 text-rose-500" />
+              <span>Sign Out to Switch Account</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-xl p-8 space-y-6 animate-fadeIn">
@@ -55,7 +96,7 @@ export default function AdminLogin({ onNavigate }) {
           <button
             type="button"
             onClick={handleFillDemo}
-            className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
+            className="flex items-center gap-1 px-3 py-1 text-xs font-bold rounded-lg bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition active:scale-95"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span>Fill Demo</span>

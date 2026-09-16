@@ -3,7 +3,7 @@
     {
       "_id": "id_5d0ge5q1l_1789497762086",
       "createdAt": "2026-09-15T18:42:42.085Z",
-      "updatedAt": "2026-09-15T18:42:42.085Z",
+      "updatedAt": "2026-09-16T05:36:54.728Z",
       "name": "Vikram Sharma",
       "email": "admin@techfix.com",
       "password": "$2a$10$K99.RiBbzLYhj1KS2.p1bOBjp7UAUANzLr9HjKjGsJdHigp7jAY02",
@@ -19,7 +19,9 @@
         "price": 1999,
         "billingCycle": "monthly",
         "ticketLimit": 1000
-      }
+      },
+      "subscription.status": "EXPIRED",
+      "subscription.expiresAt": "2026-09-15T05:36:54.726Z"
     }
   ],
   "tickets": [
@@ -323,6 +325,106 @@
       },
       "internalNotes": "",
       "notificationsSent.intakeEmail": true
+    },
+    {
+      "_id": "id_75lg9hbm0_1789536155099",
+      "createdAt": "2026-09-16T05:22:35.099Z",
+      "updatedAt": "2026-09-16T05:35:25.060Z",
+      "ticketId": "REP-1007",
+      "customer": {
+        "name": "Abhijeet Gupta",
+        "phone": "7848962669",
+        "email": "guptaabhijeet396@gmail.com",
+        "address": ""
+      },
+      "device": {
+        "type": "LAPTOP",
+        "brand": "asus",
+        "model": "vivobook 16x",
+        "serialNumber": "",
+        "accessoriesReceived": [],
+        "passcode": ""
+      },
+      "issueDescription": "screen blackout",
+      "status": "READY_FOR_DELIVERY",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-16T05:22:35.098Z",
+          "note": "Device intake completed. Initial assessment pending.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "IN_REPAIR",
+          "timestamp": "2026-09-16T05:25:21.838Z",
+          "note": "Status updated from RECEIVED to IN_REPAIR",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "READY_FOR_DELIVERY",
+          "timestamp": "2026-09-16T05:25:32.307Z",
+          "note": "Status updated from IN_REPAIR to READY_FOR_DELIVERY",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "abhishek",
+      "estimatedDeliveryDate": "2026-09-18T05:22:35.098Z",
+      "estimatedCost": 0,
+      "laborCost": 0,
+      "finalCost": 6667,
+      "paymentStatus": "PARTIAL",
+      "notificationsSent": {
+        "intakeWhatsApp": false,
+        "intakeEmail": false,
+        "readyWhatsApp": false,
+        "readyEmail": false
+      },
+      "internalNotes": "",
+      "notificationsSent.intakeEmail": true
+    },
+    {
+      "_id": "id_4nyz7nycc_1789536157267",
+      "createdAt": "2026-09-16T05:22:37.267Z",
+      "updatedAt": "2026-09-16T05:22:41.761Z",
+      "ticketId": "REP-1008",
+      "customer": {
+        "name": "Abhijeet Gupta",
+        "phone": "7848962669",
+        "email": "guptaabhijeet396@gmail.com",
+        "address": ""
+      },
+      "device": {
+        "type": "LAPTOP",
+        "brand": "asus",
+        "model": "vivobook 16x",
+        "serialNumber": "",
+        "accessoriesReceived": [],
+        "passcode": ""
+      },
+      "issueDescription": "screen blackout",
+      "status": "RECEIVED",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-16T05:22:37.267Z",
+          "note": "Device intake completed. Initial assessment pending.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "abhishek",
+      "estimatedDeliveryDate": "2026-09-18T05:22:37.267Z",
+      "estimatedCost": 0,
+      "laborCost": 0,
+      "finalCost": 0,
+      "paymentStatus": "UNPAID",
+      "notificationsSent": {
+        "intakeWhatsApp": false,
+        "intakeEmail": false,
+        "readyWhatsApp": false,
+        "readyEmail": false
+      },
+      "internalNotes": "",
+      "notificationsSent.intakeEmail": true
     }
   ],
   "inventory": [
@@ -460,6 +562,23 @@
       "sellingPrice": 850,
       "unit": "tubes",
       "location": "Workbench Toolset"
+    },
+    {
+      "_id": "id_hleocbc1a_1789536445219",
+      "createdAt": "2026-09-16T05:27:25.219Z",
+      "updatedAt": "2026-09-16T05:27:41.881Z",
+      "name": "screen guard",
+      "sku": "SKU-LAP-7912",
+      "category": "LAPTOP",
+      "brand": "asus",
+      "stockQuantity": 4,
+      "minStockThreshold": 3,
+      "costPrice": 5000,
+      "sellingPrice": 5500,
+      "unit": "pcs",
+      "location": "Rack A-1",
+      "description": "",
+      "compatibleModels": []
     }
   ],
   "invoices": [
@@ -538,6 +657,41 @@
       "paymentMethod": "UPI",
       "notes": "Thank you for choosing TechFix Pro Care.",
       "warrantyInfo": "90 Days Service Warranty on replaced parts."
+    },
+    {
+      "_id": "id_s96bbmbor_1789536925048",
+      "createdAt": "2026-09-16T05:35:25.048Z",
+      "updatedAt": "2026-09-16T05:35:25.048Z",
+      "invoiceNumber": "INV-2026-0003",
+      "ticketId": "REP-1007",
+      "customer": {
+        "name": "Abhijeet Gupta",
+        "phone": "9090951523",
+        "email": "",
+        "address": ""
+      },
+      "deviceSummary": "Repair Service",
+      "items": [
+        {
+          "description": "screen guard",
+          "type": "PART",
+          "quantity": 1,
+          "unitPrice": 5500,
+          "total": 5500
+        }
+      ],
+      "laborFee": 200,
+      "subtotal": 5700,
+      "discount": 50,
+      "taxRate": 18,
+      "taxAmount": 1017,
+      "totalAmount": 6667,
+      "paidAmount": 6600,
+      "dueAmount": 67,
+      "paymentStatus": "PARTIAL",
+      "paymentMethod": "UPI",
+      "notes": "Thank you for choosing TechFix Pro Care.",
+      "warrantyInfo": "90 Days Service Warranty on replaced parts."
     }
   ],
   "notifications": [
@@ -605,6 +759,121 @@
       "status": "SENT",
       "meta": {
         "waUrl": "https://wa.me/919887766554?text=%E2%9C%85%20*GOOD%20NEWS!%20Your%20Device%20is%20Ready%20for%20Delivery*%0A%0AHello%20*Kavita%20Nair*%2C%0AYour%20*OnePlus%2011%205G*%20(Ticket%20*%23REP-1006*)%20has%20been%20successfully%20repaired%2C%20inspected%2C%20and%20passed%20all%20quality%20tests.%0A%0A%F0%9F%92%B0%20*Billing%20Summary%3A*%0A%E2%80%A2%20*Total%20Payable%3A*%20%E2%82%B94200%0A%E2%80%A2%20*Payment%20Status%3A*%20UNPAID%0A%0A%F0%9F%93%8D%20*Pickup%20Location%3A*%0ATechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%E2%8F%B0%20*Working%20Hours%3A*%2010%3A00%20AM%20%E2%80%93%208%3A30%20PM%20(Mon%20-%20Sat)%0A%F0%9F%93%9E%20*Support%3A*%20%2B91%2098765%2043210%0A%0AYou%20can%20view%20your%20detailed%20itemized%20invoice%20and%20tracking%20history%20here%3A%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1006%0A%0APlease%20bring%20your%20Ticket%20ID%20%23REP-1006%20at%20the%20time%20of%20pickup!%0A*TechFix%20Pro%20Care*"
+      }
+    },
+    {
+      "_id": "id_bmmxl1w5z_1789536160821",
+      "createdAt": "2026-09-16T05:22:40.821Z",
+      "updatedAt": "2026-09-16T05:22:40.821Z",
+      "ticketId": "REP-1007",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "guptaabhijeet396@gmail.com",
+      "channel": "EMAIL",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "🛠️ Repair Received: #REP-1007 - asus vivobook 16x (TechFix Pro Care)",
+      "messageBody": "Sent to guptaabhijeet396@gmail.com: 🛠️ Repair Received: #REP-1007 - asus vivobook 16x (TechFix Pro Care)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<94d417fe-7099-ef0d-2542-1c6f84c06423@techfix.com>",
+        "previewUrl": "https://ethereal.email/message/aqonnF.qZeQK0.88aqonoV31x4oQTXn0AAAAATyKRD1LAjLvxYCf1Jq2MFM"
+      }
+    },
+    {
+      "_id": "id_hhki2l7it_1789536160856",
+      "createdAt": "2026-09-16T05:22:40.856Z",
+      "updatedAt": "2026-09-16T05:22:40.856Z",
+      "ticketId": "REP-1007",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "7848962669",
+      "channel": "WHATSAPP",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "WhatsApp Notification: INTAKE_CONFIRMATION",
+      "messageBody": "🛠️ *TechFix Pro Care - Repair Intake Confirmation*\n\nHello *Abhijeet Gupta*,\nWe have successfully received your device for service.\n\n📋 *Repair Ticket Details:*\n• *Ticket ID:* #REP-1007\n• *Device:* asus vivobook 16x (LAPTOP)\n• *Reported Issue:* screen blackout\n• *Est. Delivery:* 9/18/2026\n\n🔍 *Track Live Status Anytime:*\nhttp://localhost:5173/track/REP-1007\n\n📍 *Store Address:* TechFix Hub, Ground Floor, Electronics Market, Main Road\n📞 *Helpline:* +91 98765 43210\n\nThank you for trusting *TechFix Pro Care*!",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/917848962669?text=%F0%9F%9B%A0%EF%B8%8F%20*TechFix%20Pro%20Care%20-%20Repair%20Intake%20Confirmation*%0A%0AHello%20*Abhijeet%20Gupta*%2C%0AWe%20have%20successfully%20received%20your%20device%20for%20service.%0A%0A%F0%9F%93%8B%20*Repair%20Ticket%20Details%3A*%0A%E2%80%A2%20*Ticket%20ID%3A*%20%23REP-1007%0A%E2%80%A2%20*Device%3A*%20asus%20vivobook%2016x%20(LAPTOP)%0A%E2%80%A2%20*Reported%20Issue%3A*%20screen%20blackout%0A%E2%80%A2%20*Est.%20Delivery%3A*%209%2F18%2F2026%0A%0A%F0%9F%94%8D%20*Track%20Live%20Status%20Anytime%3A*%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1007%0A%0A%F0%9F%93%8D%20*Store%20Address%3A*%20TechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%F0%9F%93%9E%20*Helpline%3A*%20%2B91%2098765%2043210%0A%0AThank%20you%20for%20trusting%20*TechFix%20Pro%20Care*!"
+      }
+    },
+    {
+      "_id": "id_th8xnm9ih_1789536161746",
+      "createdAt": "2026-09-16T05:22:41.746Z",
+      "updatedAt": "2026-09-16T05:22:41.746Z",
+      "ticketId": "REP-1008",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "guptaabhijeet396@gmail.com",
+      "channel": "EMAIL",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "🛠️ Repair Received: #REP-1008 - asus vivobook 16x (TechFix Pro Care)",
+      "messageBody": "Sent to guptaabhijeet396@gmail.com: 🛠️ Repair Received: #REP-1008 - asus vivobook 16x (TechFix Pro Care)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<a81fdf8e-8674-1072-0fa6-ae87f637a050@techfix.com>",
+        "previewUrl": "https://ethereal.email/message/aqonnF.qZeQK0.88aqonomBC2Znvd9VhAAAAAsIgHqFC1pU8jW5Qz8i2D.I"
+      }
+    },
+    {
+      "_id": "id_xtnoyi8rb_1789536161764",
+      "createdAt": "2026-09-16T05:22:41.763Z",
+      "updatedAt": "2026-09-16T05:22:41.763Z",
+      "ticketId": "REP-1008",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "7848962669",
+      "channel": "WHATSAPP",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "WhatsApp Notification: INTAKE_CONFIRMATION",
+      "messageBody": "🛠️ *TechFix Pro Care - Repair Intake Confirmation*\n\nHello *Abhijeet Gupta*,\nWe have successfully received your device for service.\n\n📋 *Repair Ticket Details:*\n• *Ticket ID:* #REP-1008\n• *Device:* asus vivobook 16x (LAPTOP)\n• *Reported Issue:* screen blackout\n• *Est. Delivery:* 9/18/2026\n\n🔍 *Track Live Status Anytime:*\nhttp://localhost:5173/track/REP-1008\n\n📍 *Store Address:* TechFix Hub, Ground Floor, Electronics Market, Main Road\n📞 *Helpline:* +91 98765 43210\n\nThank you for trusting *TechFix Pro Care*!",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/917848962669?text=%F0%9F%9B%A0%EF%B8%8F%20*TechFix%20Pro%20Care%20-%20Repair%20Intake%20Confirmation*%0A%0AHello%20*Abhijeet%20Gupta*%2C%0AWe%20have%20successfully%20received%20your%20device%20for%20service.%0A%0A%F0%9F%93%8B%20*Repair%20Ticket%20Details%3A*%0A%E2%80%A2%20*Ticket%20ID%3A*%20%23REP-1008%0A%E2%80%A2%20*Device%3A*%20asus%20vivobook%2016x%20(LAPTOP)%0A%E2%80%A2%20*Reported%20Issue%3A*%20screen%20blackout%0A%E2%80%A2%20*Est.%20Delivery%3A*%209%2F18%2F2026%0A%0A%F0%9F%94%8D%20*Track%20Live%20Status%20Anytime%3A*%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1008%0A%0A%F0%9F%93%8D%20*Store%20Address%3A*%20TechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%F0%9F%93%9E%20*Helpline%3A*%20%2B91%2098765%2043210%0A%0AThank%20you%20for%20trusting%20*TechFix%20Pro%20Care*!"
+      }
+    },
+    {
+      "_id": "id_sysy2xgf6_1789536216727",
+      "createdAt": "2026-09-16T05:23:36.727Z",
+      "updatedAt": "2026-09-16T05:23:36.727Z",
+      "ticketId": "REP-1008",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "7848962669",
+      "channel": "WHATSAPP",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "WhatsApp Notification: INTAKE_CONFIRMATION",
+      "messageBody": "🛠️ *TechFix Pro Care - Repair Intake Confirmation*\n\nHello *Abhijeet Gupta*,\nWe have successfully received your device for service.\n\n📋 *Repair Ticket Details:*\n• *Ticket ID:* #REP-1008\n• *Device:* asus vivobook 16x (LAPTOP)\n• *Reported Issue:* screen blackout\n• *Est. Delivery:* 9/18/2026\n\n🔍 *Track Live Status Anytime:*\nhttp://localhost:5173/track/REP-1008\n\n📍 *Store Address:* TechFix Hub, Ground Floor, Electronics Market, Main Road\n📞 *Helpline:* +91 98765 43210\n\nThank you for trusting *TechFix Pro Care*!",
+      "status": "SENT",
+      "meta": {
+        "manualDispatch": true
+      }
+    },
+    {
+      "_id": "id_4s14vvtpo_1789536336937",
+      "createdAt": "2026-09-16T05:25:36.937Z",
+      "updatedAt": "2026-09-16T05:25:36.937Z",
+      "ticketId": "REP-1007",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "guptaabhijeet396@gmail.com",
+      "channel": "EMAIL",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "🎉 READY FOR DELIVERY: #REP-1007 - asus vivobook 16x (TechFix Pro Care)",
+      "messageBody": "Sent to guptaabhijeet396@gmail.com: 🎉 READY FOR DELIVERY: #REP-1007 - asus vivobook 16x (TechFix Pro Care)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<697fe783-acab-367b-673c-df736ec0ba1f@techfix.com>",
+        "previewUrl": "https://ethereal.email/message/aqonnF.qZeQK0.88aqooUZW6vNXKjk0MAAAAA0OkaS5VzAHrVQGDJMC.N7w"
+      }
+    },
+    {
+      "_id": "id_wbaxn3q5w_1789536336944",
+      "createdAt": "2026-09-16T05:25:36.944Z",
+      "updatedAt": "2026-09-16T05:25:36.944Z",
+      "ticketId": "REP-1007",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "7848962669",
+      "channel": "WHATSAPP",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "WhatsApp Notification: READY_FOR_DELIVERY",
+      "messageBody": "✅ *GOOD NEWS! Your Device is Ready for Delivery*\n\nHello *Abhijeet Gupta*,\nYour *asus vivobook 16x* (Ticket *#REP-1007*) has been successfully repaired, inspected, and passed all quality tests.\n\n💰 *Billing Summary:*\n• *Total Payable:* ₹0\n• *Payment Status:* UNPAID\n\n📍 *Pickup Location:*\nTechFix Hub, Ground Floor, Electronics Market, Main Road\n⏰ *Working Hours:* 10:00 AM – 8:30 PM (Mon - Sat)\n📞 *Support:* +91 98765 43210\n\nYou can view your detailed itemized invoice and tracking history here:\nhttp://localhost:5173/track/REP-1007\n\nPlease bring your Ticket ID #REP-1007 at the time of pickup!\n*TechFix Pro Care*",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/917848962669?text=%E2%9C%85%20*GOOD%20NEWS!%20Your%20Device%20is%20Ready%20for%20Delivery*%0A%0AHello%20*Abhijeet%20Gupta*%2C%0AYour%20*asus%20vivobook%2016x*%20(Ticket%20*%23REP-1007*)%20has%20been%20successfully%20repaired%2C%20inspected%2C%20and%20passed%20all%20quality%20tests.%0A%0A%F0%9F%92%B0%20*Billing%20Summary%3A*%0A%E2%80%A2%20*Total%20Payable%3A*%20%E2%82%B90%0A%E2%80%A2%20*Payment%20Status%3A*%20UNPAID%0A%0A%F0%9F%93%8D%20*Pickup%20Location%3A*%0ATechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%E2%8F%B0%20*Working%20Hours%3A*%2010%3A00%20AM%20%E2%80%93%208%3A30%20PM%20(Mon%20-%20Sat)%0A%F0%9F%93%9E%20*Support%3A*%20%2B91%2098765%2043210%0A%0AYou%20can%20view%20your%20detailed%20itemized%20invoice%20and%20tracking%20history%20here%3A%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1007%0A%0APlease%20bring%20your%20Ticket%20ID%20%23REP-1007%20at%20the%20time%20of%20pickup!%0A*TechFix%20Pro%20Care*"
       }
     }
   ]

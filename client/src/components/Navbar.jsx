@@ -3,19 +3,17 @@ import {
   Wrench,
   Search,
   ShieldCheck,
-  Smartphone,
-  Laptop,
-  Monitor,
   User,
   ArrowRight,
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ onNavigate, currentPage }) {
-  const { isAuthenticated, admin } = useAuth();
+  const { isAuthenticated, admin, logout } = useAuth();
   const [quickTrackQuery, setQuickTrackQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -28,14 +26,21 @@ export default function Navbar({ onNavigate, currentPage }) {
     }
   };
 
+  const handleNavClick = (page, e) => {
+    if (e) e.preventDefault();
+    onNavigate(page);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <div
-            onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 cursor-pointer group select-none flex-shrink-0"
+          <a
+            href="#home"
+            onClick={(e) => handleNavClick('home', e)}
+            className="flex items-center gap-3 cursor-pointer group select-none flex-shrink-0 text-inherit no-underline"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform duration-200">
               <Wrench className="w-5 h-5 transform group-hover:rotate-45 transition-transform duration-300" />
@@ -49,7 +54,7 @@ export default function Navbar({ onNavigate, currentPage }) {
                 Laptop • Desktop • Mobile Care
               </p>
             </div>
-          </div>
+          </a>
 
           {/* Quick Track Input */}
           <form
@@ -76,8 +81,9 @@ export default function Navbar({ onNavigate, currentPage }) {
 
           {/* Desktop Nav Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => onNavigate('home')}
+            <a
+              href="#home"
+              onClick={(e) => handleNavClick('home', e)}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                 currentPage === 'home'
                   ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50'
@@ -85,10 +91,11 @@ export default function Navbar({ onNavigate, currentPage }) {
               }`}
             >
               Services
-            </button>
+            </a>
 
-            <button
-              onClick={() => onNavigate('track')}
+            <a
+              href="#track"
+              onClick={(e) => handleNavClick('track', e)}
               className={`px-3 py-1.5 text-sm font-medium rounded-lg transition ${
                 currentPage === 'track'
                   ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/50'
@@ -96,28 +103,44 @@ export default function Navbar({ onNavigate, currentPage }) {
               }`}
             >
               Live Tracker
-            </button>
+            </a>
 
             <div className="h-5 w-px bg-slate-200 dark:bg-slate-800 mx-1" />
 
             <ThemeToggle />
 
+            {/* Admin Authentication Link / Suite Button */}
             {isAuthenticated ? (
-              <button
-                onClick={() => onNavigate('admin-dashboard')}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Admin Suite</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <a
+                  href="#admin-dashboard"
+                  onClick={(e) => handleNavClick('admin-dashboard', e)}
+                  className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm transition"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Admin Suite</span>
+                </a>
+                <button
+                  onClick={logout}
+                  title="Sign Out"
+                  className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/50 text-slate-500 hover:text-rose-600 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             ) : (
-              <button
-                onClick={() => onNavigate('admin-login')}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-blue-500 text-slate-700 dark:text-slate-200 text-sm font-medium transition hover:bg-slate-50 dark:hover:bg-slate-800"
+              <a
+                href="#admin-login"
+                onClick={(e) => handleNavClick('admin-login', e)}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 hover:border-blue-500 text-sm font-semibold transition ${
+                  currentPage === 'admin-login'
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
               >
                 <User className="w-4 h-4" />
                 <span>Admin Login</span>
-              </button>
+              </a>
             )}
           </div>
 
@@ -148,34 +171,47 @@ export default function Navbar({ onNavigate, currentPage }) {
             </form>
 
             <div className="flex flex-col gap-2 pt-2">
-              <button
-                onClick={() => { onNavigate('home'); setMobileMenuOpen(false); }}
+              <a
+                href="#home"
+                onClick={(e) => handleNavClick('home', e)}
                 className="text-left px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
               >
                 Services
-              </button>
-              <button
-                onClick={() => { onNavigate('track'); setMobileMenuOpen(false); }}
+              </a>
+              <a
+                href="#track"
+                onClick={(e) => handleNavClick('track', e)}
                 className="text-left px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
               >
                 Live Tracker
-              </button>
+              </a>
               {isAuthenticated ? (
-                <button
-                  onClick={() => { onNavigate('admin-dashboard'); setMobileMenuOpen(false); }}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-medium"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  <span>Admin Dashboard</span>
-                </button>
+                <div className="space-y-2">
+                  <a
+                    href="#admin-dashboard"
+                    onClick={(e) => handleNavClick('admin-dashboard', e)}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-medium"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Admin Dashboard</span>
+                  </a>
+                  <button
+                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-rose-600 text-sm font-medium"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
               ) : (
-                <button
-                  onClick={() => { onNavigate('admin-login'); setMobileMenuOpen(false); }}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium"
+                <a
+                  href="#admin-login"
+                  onClick={(e) => handleNavClick('admin-login', e)}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium bg-slate-50 dark:bg-slate-800"
                 >
                   <User className="w-4 h-4" />
                   <span>Admin Login</span>
-                </button>
+                </a>
               )}
             </div>
           </div>

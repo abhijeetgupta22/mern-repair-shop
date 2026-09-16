@@ -23,9 +23,11 @@ export function AuthProvider({ children }) {
           if (res.data.success && res.data.admin) {
             setAdmin(res.data.admin);
             localStorage.setItem('techfix_admin', JSON.stringify(res.data.admin));
+          } else {
+            logout();
           }
         } catch (err) {
-          console.warn('Session verification failed, logging out');
+          console.warn('Session verification failed, logging out:', err.message);
           logout();
         }
       }
@@ -35,15 +37,21 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    if (res.data.success) {
-      setToken(res.data.token);
-      setAdmin(res.data.admin);
-      localStorage.setItem('techfix_token', res.data.token);
-      localStorage.setItem('techfix_admin', JSON.stringify(res.data.admin));
-      return { success: true };
+    try {
+      const res = await api.post('/auth/login', { email, password });
+      if (res.data && res.data.success) {
+        setToken(res.data.token);
+        setAdmin(res.data.admin);
+        localStorage.setItem('techfix_token', res.data.token);
+        localStorage.setItem('techfix_admin', JSON.stringify(res.data.admin));
+        return { success: true };
+      }
+      return { success: false, message: res.data?.message || 'Login failed. Please check your credentials.' };
+    } catch (err) {
+      console.error('Login request error:', err);
+      const msg = err.response?.data?.message || err.message || 'Cannot connect to server. Please verify backend is running.';
+      return { success: false, message: msg };
     }
-    return { success: false, message: res.data.message };
   };
 
   const logout = () => {

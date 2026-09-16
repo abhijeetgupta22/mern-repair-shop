@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
@@ -17,50 +17,88 @@ import AdminInventory from './pages/AdminInventory';
 import AdminBilling from './pages/AdminBilling';
 import AdminSubscription from './pages/AdminSubscription';
 
+function getInitialPage() {
+  const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
+  const path = window.location.pathname.replace(/^\//, '').toLowerCase();
+  const target = hash || path;
+
+  if (target.includes('login') || target.includes('admin-login') || target === 'admin') {
+    return 'admin-login';
+  }
+  if (target.includes('track')) return 'track';
+  if (target.includes('dashboard')) return 'admin-dashboard';
+  if (target.includes('ticket')) return 'admin-tickets';
+  if (target.includes('inventory')) return 'admin-inventory';
+  if (target.includes('bill') || target.includes('invoice')) return 'admin-billing';
+  if (target.includes('subscri')) return 'admin-subscription';
+  return 'home';
+}
+
 function MainApp() {
   const { isAuthenticated } = useAuth();
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [pageParams, setPageParams] = useState({});
 
   const handleNavigate = (page, params = {}) => {
     setCurrentPage(page);
     setPageParams(params);
+    window.location.hash = page;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const isAdminPage = currentPage.startsWith('admin-');
+  // Sync with browser URL hash change & back/forward
+  useEffect(() => {
+    const handleHashChange = () => {
+      const detected = getInitialPage();
+      setCurrentPage(detected);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
+
+  const isAdminSection = currentPage.startsWith('admin-') && currentPage !== 'admin-login';
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       {/* Top Navbar */}
       <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
 
-      {/* Admin Subscription Banner if in admin section */}
-      {isAdminPage && isAuthenticated && (
+      {/* Admin Subscription Banner if inside protected admin workspace */}
+      {isAdminSection && isAuthenticated && (
         <SubscriptionBanner onNavigate={handleNavigate} />
       )}
 
       {/* Main Content Area */}
       <div className="flex-1 flex">
-        {/* Admin Sidebar if in admin section */}
-        {isAdminPage && isAuthenticated && (
+        {/* Admin Sidebar if inside protected admin workspace */}
+        {isAdminSection && isAuthenticated && (
           <Sidebar currentPage={currentPage} onNavigate={handleNavigate} />
         )}
 
-        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${isAdminPage && isAuthenticated ? 'max-w-7xl mx-auto' : 'w-full'}`}>
+        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${isAdminSection && isAuthenticated ? 'max-w-7xl mx-auto' : 'w-full'}`}>
           {/* Public Pages */}
           {currentPage === 'home' && <PublicHome onNavigate={handleNavigate} />}
           {currentPage === 'track' && (
             <PublicTrack query={pageParams.query || ''} onNavigate={handleNavigate} />
           )}
-          {currentPage === 'admin-login' && <AdminLogin onNavigate={handleNavigate} />}
 
-          {/* Admin Pages (Requires Auth) */}
-          {isAdminPage && !isAuthenticated && (
+          {/* Admin Login Page */}
+          {currentPage === 'admin-login' && (
             <AdminLogin onNavigate={handleNavigate} />
           )}
 
-          {isAdminPage && isAuthenticated && (
+          {/* Protected Admin Pages (Renders login if unauthenticated) */}
+          {isAdminSection && !isAuthenticated && (
+            <AdminLogin onNavigate={handleNavigate} />
+          )}
+
+          {/* Protected Admin Pages (When Authenticated) */}
+          {isAdminSection && isAuthenticated && (
             <>
               {currentPage === 'admin-dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
               {currentPage === 'admin-tickets' && <AdminTickets onNavigate={handleNavigate} />}
@@ -89,11 +127,19 @@ function MainApp() {
             <span>• Multi-Brand Laptop, Desktop & Mobile Repair Station</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => handleNavigate('home')} className="hover:underline">Services</button>
-            <button onClick={() => handleNavigate('track')} className="hover:underline">Live Tracker</button>
-            <button onClick={() => handleNavigate(isAuthenticated ? 'admin-dashboard' : 'admin-login')} className="hover:underline">
+            <a href="#home" onClick={(e) => { e.preventDefault(); handleNavigate('home'); }} className="hover:underline">
+              Services
+            </a>
+            <a href="#track" onClick={(e) => { e.preventDefault(); handleNavigate('track'); }} className="hover:underline">
+              Live Tracker
+            </a>
+            <a
+              href={isAuthenticated ? '#admin-dashboard' : '#admin-login'}
+              onClick={(e) => { e.preventDefault(); handleNavigate(isAuthenticated ? 'admin-dashboard' : 'admin-login'); }}
+              className="hover:underline font-semibold text-blue-600 dark:text-blue-400"
+            >
               {isAuthenticated ? 'Admin Suite' : 'Admin Login'}
-            </button>
+            </a>
           </div>
         </div>
       </footer>

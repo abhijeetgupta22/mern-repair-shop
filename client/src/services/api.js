@@ -31,12 +31,10 @@ api.interceptors.response.use(
         }));
       }
       // If token expired
-      if (error.response.status === 401 && !error.config.url.includes('/login')) {
+      if (error.response.status === 401 && !error.config?.url?.includes('/login')) {
         localStorage.removeItem('techfix_token');
         localStorage.removeItem('techfix_admin');
-        if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
-          window.location.href = '/admin/login';
-        }
+        window.location.hash = 'admin-login';
       }
     }
     return Promise.reject(error);
