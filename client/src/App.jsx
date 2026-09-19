@@ -18,6 +18,7 @@ import AdminTickets from './pages/AdminTickets';
 import AdminInventory from './pages/AdminInventory';
 import AdminBilling from './pages/AdminBilling';
 import AdminSubscription from './pages/AdminSubscription';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function getInitialPage() {
   const hash = window.location.hash.replace(/^#\/?/, '').toLowerCase();
@@ -95,38 +96,40 @@ function MainApp() {
         )}
 
         <main className={`flex-1 p-3 sm:p-6 lg:p-8 ${isAdminSection && isAuthenticated ? 'max-w-7xl mx-auto w-full pb-28 lg:pb-8' : 'w-full'}`}>
-          {/* Public Pages */}
-          {currentPage === 'home' && <PublicHome onNavigate={handleNavigate} />}
-          {currentPage === 'track' && (
-            <PublicTrack query={pageParams.query || ''} onNavigate={handleNavigate} />
-          )}
+          <ErrorBoundary key={currentPage} onReset={() => handleNavigate(isAuthenticated ? 'admin-dashboard' : 'home')}>
+            {/* Public Pages */}
+            {currentPage === 'home' && <PublicHome onNavigate={handleNavigate} />}
+            {currentPage === 'track' && (
+              <PublicTrack query={pageParams.query || ''} onNavigate={handleNavigate} />
+            )}
 
-          {/* Admin Login Page */}
-          {currentPage === 'admin-login' && (
-            <AdminLogin onNavigate={handleNavigate} />
-          )}
+            {/* Admin Login Page */}
+            {currentPage === 'admin-login' && (
+              <AdminLogin onNavigate={handleNavigate} />
+            )}
 
-          {/* Protected Admin Pages (Renders login if unauthenticated) */}
-          {isAdminSection && !isAuthenticated && (
-            <AdminLogin onNavigate={handleNavigate} />
-          )}
+            {/* Protected Admin Pages (Renders login if unauthenticated) */}
+            {isAdminSection && !isAuthenticated && (
+              <AdminLogin onNavigate={handleNavigate} />
+            )}
 
-          {/* Protected Admin Pages (When Authenticated) */}
-          {isAdminSection && isAuthenticated && (
-            <>
-              {currentPage === 'admin-dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
-              {currentPage === 'admin-tickets' && <AdminTickets onNavigate={handleNavigate} />}
-              {currentPage === 'admin-inventory' && (
-                <AdminInventory onNavigate={handleNavigate} />
-              )}
-              {currentPage === 'admin-billing' && (
-                <AdminBilling initialTicketId={pageParams.ticketId} onNavigate={handleNavigate} />
-              )}
-              {currentPage === 'admin-subscription' && (
-                <AdminSubscription onNavigate={handleNavigate} />
-              )}
-            </>
-          )}
+            {/* Protected Admin Pages (When Authenticated) */}
+            {isAdminSection && isAuthenticated && (
+              <>
+                {currentPage === 'admin-dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
+                {currentPage === 'admin-tickets' && <AdminTickets onNavigate={handleNavigate} />}
+                {currentPage === 'admin-inventory' && (
+                  <AdminInventory onNavigate={handleNavigate} />
+                )}
+                {currentPage === 'admin-billing' && (
+                  <AdminBilling initialTicketId={pageParams.ticketId} onNavigate={handleNavigate} />
+                )}
+                {currentPage === 'admin-subscription' && (
+                  <AdminSubscription onNavigate={handleNavigate} />
+                )}
+              </>
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 

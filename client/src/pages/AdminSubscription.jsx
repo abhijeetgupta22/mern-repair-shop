@@ -24,6 +24,7 @@ export default function AdminSubscription() {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [selectedPlanForModal, setSelectedPlanForModal] = useState('3_MONTHS');
   const [copiedUPI, setCopiedUPI] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const payeeUPI = ownerPaymentConfig?.upiId || 'guptaabhijeet396@okhdfcbank';
   const payeeName = ownerPaymentConfig?.payeeName || 'Abhijeet Gupta';
@@ -40,6 +41,12 @@ export default function AdminSubscription() {
 
   const handleToggleSimulate = async (newStatus) => {
     await simulateToggle(newStatus);
+    setSuccessMessage(
+      newStatus === 'ACTIVE'
+        ? 'Subscription successfully simulated as ACTIVE (Unlocked)!'
+        : 'Subscription successfully simulated as EXPIRED (Paywall Active)!'
+    );
+    setTimeout(() => setSuccessMessage(''), 4000);
   };
 
   const activePlans = [

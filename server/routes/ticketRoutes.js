@@ -475,4 +475,25 @@ router.put('/:id', protectAdmin, requireActiveSubscription, async (req, res) => 
   }
 });
 
+// DELETE /api/tickets/:id - Delete a repair ticket permanently
+router.delete('/:id', protectAdmin, requireActiveSubscription, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ticket = await RepairTicket.findById(id);
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Ticket not found' });
+    }
+
+    await RepairTicket.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: `Repair ticket #${ticket.ticketId} deleted successfully`
+    });
+  } catch (error) {
+    console.error('Delete ticket error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete repair ticket' });
+  }
+});
+
 export default router;

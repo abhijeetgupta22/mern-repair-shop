@@ -20,7 +20,8 @@ import {
   Store,
   MapPin,
   Phone,
-  QrCode
+  QrCode,
+  Trash2
 } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge from '../components/StatusBadge';
@@ -109,6 +110,29 @@ export default function AdminDashboard({ onNavigate }) {
         openPaywall('Active subscription required to change ticket status');
       } else {
         alert(err.response?.data?.message || 'Failed to update status');
+      }
+    }
+  };
+
+  const handleDeleteTicket = async (ticket) => {
+    const id = ticket._id || ticket.id;
+    const ticketLabel = ticket.ticketId ? `#${ticket.ticketId}` : 'this ticket';
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete repair ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'})?\n\nThis will remove the ticket from records permanently.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.delete(`/tickets/${id}`);
+      if (res.data.success) {
+        setRecentTickets((prev) => prev.filter((t) => (t._id || t.id) !== id));
+        fetchDashboardData();
+      }
+    } catch (err) {
+      if (err.response?.status === 402) {
+        openPaywall('Active subscription required to delete repair tickets');
+      } else {
+        alert(err.response?.data?.message || 'Failed to delete repair ticket');
       }
     }
   };
@@ -411,6 +435,15 @@ export default function AdminDashboard({ onNavigate }) {
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                     </button>
+
+                    {/* Delete ticket */}
+                    <button
+                      onClick={() => handleDeleteTicket(t)}
+                      title="Permanently Delete Ticket"
+                      className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -477,8 +510,17 @@ export default function AdminDashboard({ onNavigate }) {
                   <button
                     onClick={() => onNavigate('track', { query: t.ticketId })}
                     className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm"
+                    title="Track Page"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteTicket(t)}
+                    className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
+                    title="Delete Ticket"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>

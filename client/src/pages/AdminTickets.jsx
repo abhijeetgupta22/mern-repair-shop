@@ -14,7 +14,8 @@ import {
   Phone,
   User,
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Trash2
 } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge from '../components/StatusBadge';
@@ -102,6 +103,28 @@ export default function AdminTickets({ onNavigate }) {
         openPaywall('Active subscription required to change ticket status');
       } else {
         alert(err.response?.data?.message || 'Error updating status');
+      }
+    }
+  };
+
+  const handleDeleteTicket = async (ticket) => {
+    const id = ticket._id || ticket.id;
+    const ticketLabel = ticket.ticketId ? `#${ticket.ticketId}` : 'this ticket';
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete repair ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'} - ${ticket.device?.brand || ''} ${ticket.device?.model || ''})?\n\nThis will remove the ticket from records permanently.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.delete(`/tickets/${id}`);
+      if (res.data.success) {
+        setTickets((prev) => prev.filter((t) => (t._id || t.id) !== id));
+      }
+    } catch (err) {
+      if (err.response?.status === 402) {
+        openPaywall('Active subscription required to delete repair tickets');
+      } else {
+        alert(err.response?.data?.message || 'Failed to delete repair ticket');
       }
     }
   };
@@ -349,6 +372,15 @@ export default function AdminTickets({ onNavigate }) {
                     >
                       <ExternalLink className="w-4 h-4" />
                     </button>
+
+                    {/* Delete Ticket */}
+                    <button
+                      onClick={() => handleDeleteTicket(t)}
+                      title="Permanently Delete Ticket"
+                      className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -457,6 +489,13 @@ export default function AdminTickets({ onNavigate }) {
                   title="Track Page"
                 >
                   <ExternalLink className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteTicket(t)}
+                  className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
+                  title="Permanently Delete Ticket"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
