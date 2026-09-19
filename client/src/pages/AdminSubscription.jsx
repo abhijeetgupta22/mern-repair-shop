@@ -11,30 +11,31 @@ import {
   ArrowRight,
   ShieldAlert,
   Gift,
-  CalendarCheck
+  CalendarCheck,
+  Copy,
+  CheckCircle2,
+  Receipt
 } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
+import SubscriptionPaymentModal from '../components/SubscriptionPaymentModal';
 
 export default function AdminSubscription() {
-  const { subscription, plans, upgradePlan, simulateToggle, refreshSubscription } = useSubscription();
-  const [checkoutPlan, setCheckoutPlan] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+  const { subscription, plans, simulateToggle, ownerPaymentConfig } = useSubscription();
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [selectedPlanForModal, setSelectedPlanForModal] = useState('3_MONTHS');
+  const [copiedUPI, setCopiedUPI] = useState(false);
+
+  const payeeUPI = ownerPaymentConfig?.upiId || 'guptaabhijeet396@okhdfcbank';
+  const payeeName = ownerPaymentConfig?.payeeName || 'Abhijeet Gupta';
 
   const isExpired = subscription?.isExpired || subscription?.status === 'EXPIRED';
   const isTrial = subscription?.plan === 'FREE_TRIAL' || subscription?.status === 'TRIAL';
   const daysLeft = subscription?.daysRemaining ?? 28;
 
-  const handleUpgrade = async (planId) => {
-    setProcessing(true);
-    setSuccessMessage('');
-    const res = await upgradePlan(planId);
-    setProcessing(false);
-    if (res.success) {
-      setSuccessMessage(`Subscription activated successfully! Account renewed.`);
-      setCheckoutPlan(null);
-      setTimeout(() => setSuccessMessage(''), 4000);
-    }
+  const handleCopyOwnerUPI = () => {
+    navigator.clipboard.writeText(payeeUPI);
+    setCopiedUPI(true);
+    setTimeout(() => setCopiedUPI(false), 2000);
   };
 
   const handleToggleSimulate = async (newStatus) => {
@@ -157,7 +158,10 @@ export default function AdminSubscription() {
             )}
 
             <button
-              onClick={() => setCheckoutPlan(activePlans[1])}
+              onClick={() => {
+                setSelectedPlanForModal('3_MONTHS');
+                setPaymentModalOpen(true);
+              }}
               className="w-full sm:w-auto px-4 py-2 text-xs font-bold rounded-xl bg-white text-slate-900 hover:bg-slate-100 shadow-md transition"
             >
               Renew / Extend Plan
@@ -179,6 +183,46 @@ export default function AdminSubscription() {
         </div>
       </div>
 
+      {/* Verified Owner Payment Details Card */}
+      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-slate-900 dark:text-white">
+                Platform Payment Recipient: {payeeName}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 text-[10px] font-black uppercase">
+                Verified UPI
+              </span>
+            </div>
+            <p className="text-xs font-mono text-slate-500 dark:text-slate-400 mt-0.5">
+              UPI ID: <strong className="text-slate-800 dark:text-slate-200">{payeeUPI}</strong>
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCopyOwnerUPI}
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 font-semibold text-slate-700 dark:text-slate-200 text-xs shadow-sm transition"
+        >
+          {copiedUPI ? (
+            <>
+              <Check className="w-4 h-4 text-emerald-500" />
+              <span className="text-emerald-600 dark:text-emerald-400">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-4 h-4 text-slate-500" />
+              <span>Copy Payee UPI ID</span>
+            </>
+          )}
+        </button>
+      </div>
+
       {/* Plan Selection Cards */}
       <div className="space-y-4">
         <div className="text-center space-y-1">
@@ -186,7 +230,7 @@ export default function AdminSubscription() {
             Choose Your Renewal Option
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Instant activation with simulated UPI QR Code / Card payment.
+            Instant activation with Direct UPI QR Code (GPay, PhonePe, Paytm, BHIM) or UTR verification.
           </p>
         </div>
 
@@ -232,7 +276,10 @@ export default function AdminSubscription() {
 
                 <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
                   <button
-                    onClick={() => setCheckoutPlan(p)}
+                    onClick={() => {
+                      setSelectedPlanForModal(p.id);
+                      setPaymentModalOpen(true);
+                    }}
                     className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
                       isCurrent
                         ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
@@ -251,47 +298,66 @@ export default function AdminSubscription() {
         </div>
       </div>
 
-      {/* Mock Checkout Modal */}
-      {checkoutPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-              Activate Subscription: {checkoutPlan.name}
+      {/* Payment & Transaction History */}
+      {subscription?.paymentHistory && subscription.paymentHistory.length > 0 && (
+        <div className="space-y-3 pt-4">
+          <div className="flex items-center gap-2">
+            <Receipt className="w-4 h-4 text-blue-500" />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              Recent Subscription Payments & Receipts
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Total Payable: <strong className="text-slate-900 dark:text-white">₹{checkoutPlan.priceINR}</strong> for {checkoutPlan.durationDays} days of full shop access.
-            </p>
+          </div>
 
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
-              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-semibold">
-                <QrCode className="w-4 h-4 text-blue-500" />
-                <span>Simulated UPI & Card Payment Gateway</span>
-              </div>
-              <p className="text-[11px] text-slate-500">
-                Clicking confirm simulates instant payment authorization and immediately marks your subscription as ACTIVE with {checkoutPlan.durationDays} days validity.
-              </p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setCheckoutPlan(null)}
-                className="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={processing}
-                onClick={() => handleUpgrade(checkoutPlan.id)}
-                className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition disabled:opacity-50"
-              >
-                {processing ? 'Authorizing...' : `Pay ₹${checkoutPlan.priceINR} & Activate`}
-              </button>
-            </div>
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">
+                <tr>
+                  <th className="py-3 px-4">Date</th>
+                  <th className="py-3 px-4">Plan</th>
+                  <th className="py-3 px-4">Amount</th>
+                  <th className="py-3 px-4">UTR / Transaction ID</th>
+                  <th className="py-3 px-4">Paid To</th>
+                  <th className="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {subscription.paymentHistory.map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                    <td className="py-3 px-4 text-slate-500">
+                      {new Date(item.date).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">
+                      {item.plan === '3_MONTHS' ? '3 Months Value Plan' : '1 Month Shop Plan'}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">
+                      ₹{item.amount}
+                    </td>
+                    <td className="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">
+                      {item.utr || 'N/A'}
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                      {item.paidToUPI || payeeUPI}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>{item.status || 'PAID'}</span>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
+
+      {/* Direct UPI Scan & Pay Modal */}
+      <SubscriptionPaymentModal
+        isOpen={paymentModalOpen}
+        onClose={() => setPaymentModalOpen(false)}
+        initialPlanId={selectedPlanForModal}
+      />
     </div>
   );
 }

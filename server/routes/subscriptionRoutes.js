@@ -64,6 +64,16 @@ router.get('/plans', (req, res) => {
   res.json({ success: true, plans: SUBSCRIPTION_PLANS });
 });
 
+// GET /api/subscriptions/payment-config - Platform owner payment details for subscriptions
+router.get('/payment-config', (req, res) => {
+  res.json({
+    success: true,
+    upiId: process.env.OWNER_UPI_ID || 'guptaabhijeet396@okhdfcbank',
+    payeeName: process.env.OWNER_NAME || 'Abhijeet Gupta',
+    plans: SUBSCRIPTION_PLANS
+  });
+});
+
 // GET /api/subscriptions/status - Get current admin's subscription
 router.get('/status', protectAdmin, async (req, res) => {
   try {
@@ -94,10 +104,10 @@ router.get('/status', protectAdmin, async (req, res) => {
   }
 });
 
-// POST /api/subscriptions/upgrade - Simulate or process payment to activate/renew plan
+// POST /api/subscriptions/upgrade - Process UPI payment / UTR confirmation to activate/renew plan
 router.post('/upgrade', protectAdmin, async (req, res) => {
   try {
-    const { planId } = req.body;
+    const { planId, paymentReference, utr } = req.body;
     const adminId = req.admin._id || req.admin.id;
 
     let selectedPlan = SUBSCRIPTION_PLANS.find(p => p.id === planId);
@@ -107,6 +117,25 @@ router.post('/upgrade', protectAdmin, async (req, res) => {
 
     const durationDays = selectedPlan.durationDays || 30;
     const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+    const txnReference = (utr || paymentReference || '').trim() || ('UPI_DEMO_' + Math.random().toString(36).substr(2, 9).toUpperCase());
+    const ownerUpi = process.env.OWNER_UPI_ID || 'guptaabhijeet396@okhdfcbank';
+    const ownerName = process.env.OWNER_NAME || 'Abhijeet Gupta';
+
+    // Retrieve existing payment history
+    const existingAdmin = await Admin.findById(adminId);
+    const currentSub = (existingAdmin && existingAdmin.subscription) || {};
+    const paymentHistory = Array.isArray(currentSub.paymentHistory) ? [...currentSub.paymentHistory] : [];
+
+    const paymentRecord = {
+      plan: selectedPlan.id,
+      amount: selectedPlan.priceINR,
+      utr: txnReference,
+      paidToUPI: ownerUpi,
+      paidToName: ownerName,
+      date: new Date(),
+      status: 'PAID'
+    };
+    paymentHistory.unshift(paymentRecord);
 
     const updatedSubscription = {
       plan: selectedPlan.id,
@@ -115,7 +144,12 @@ router.post('/upgrade', protectAdmin, async (req, res) => {
       expiresAt,
       price: selectedPlan.priceINR,
       billingCycle: selectedPlan.billingCycle,
-      ticketLimit: selectedPlan.ticketLimit
+      ticketLimit: selectedPlan.ticketLimit,
+      lastPaymentRef: txnReference,
+      lastPaymentDate: new Date(),
+      paidToUPI: ownerUpi,
+      paidToName: ownerName,
+      paymentHistory: paymentHistory.slice(0, 20) // Keep latest 20 payments
     };
 
     const updatedAdmin = await Admin.findByIdAndUpdate(
@@ -124,13 +158,13 @@ router.post('/upgrade', protectAdmin, async (req, res) => {
       { new: true }
     );
 
-    const safeAdmin = { ...updatedAdmin };
+    const safeAdmin = { ...(updatedAdmin.toObject ? updatedAdmin.toObject() : updatedAdmin) };
     delete safeAdmin.password;
 
     res.json({
       success: true,
-      message: `Subscription successfully renewed with ${selectedPlan.name}! Valid for ${durationDays} days.`,
-      transactionId: 'TXN_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      message: `Subscription successfully renewed for ₹${selectedPlan.priceINR} (${selectedPlan.name})! Valid for ${durationDays} days.`,
+      transactionId: txnReference,
       subscription: updatedSubscription,
       admin: safeAdmin
     });

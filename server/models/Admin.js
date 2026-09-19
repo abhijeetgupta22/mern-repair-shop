@@ -21,7 +21,22 @@ const adminSchema = new mongoose.Schema({
     },
     price: { type: Number, default: 0 },
     billingCycle: { type: String, enum: ['trial', 'monthly', 'quarterly'], default: 'trial' },
-    ticketLimit: { type: Number, default: 99999 }
+    ticketLimit: { type: Number, default: 99999 },
+    lastPaymentRef: { type: String, default: '' },
+    lastPaymentDate: { type: Date },
+    paidToUPI: { type: String, default: 'guptaabhijeet396@okhdfcbank' },
+    paidToName: { type: String, default: 'Abhijeet Gupta' },
+    paymentHistory: [
+      {
+        plan: String,
+        amount: Number,
+        utr: String,
+        paidToUPI: String,
+        paidToName: String,
+        date: { type: Date, default: Date.now },
+        status: { type: String, default: 'PAID' }
+      }
+    ]
   }
 }, { timestamps: true });
 

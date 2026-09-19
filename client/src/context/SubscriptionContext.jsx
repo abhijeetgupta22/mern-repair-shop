@@ -12,6 +12,11 @@ export function SubscriptionProvider({ children }) {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [paywallReason, setPaywallReason] = useState('');
 
+  const [ownerPaymentConfig, setOwnerPaymentConfig] = useState({
+    upiId: 'guptaabhijeet396@okhdfcbank',
+    payeeName: 'Abhijeet Gupta'
+  });
+
   const fetchSubscription = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
@@ -27,20 +32,30 @@ export function SubscriptionProvider({ children }) {
     }
   }, [isAuthenticated]);
 
-  const fetchPlans = useCallback(async () => {
+  const fetchPlansAndConfig = useCallback(async () => {
     try {
-      const res = await api.get('/subscriptions/plans');
+      const res = await api.get('/subscriptions/payment-config');
       if (res.data.success) {
-        setPlans(res.data.plans);
+        if (res.data.plans) setPlans(res.data.plans);
+        setOwnerPaymentConfig({
+          upiId: res.data.upiId || 'guptaabhijeet396@okhdfcbank',
+          payeeName: res.data.payeeName || 'Abhijeet Gupta'
+        });
       }
     } catch (err) {
-      console.error('Failed to fetch plans:', err);
+      // Fallback to /plans if payment-config not available
+      try {
+        const plansRes = await api.get('/subscriptions/plans');
+        if (plansRes.data.success) setPlans(plansRes.data.plans);
+      } catch (e) {
+        console.error('Failed to fetch plans:', e);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
+    fetchPlansAndConfig();
+  }, [fetchPlansAndConfig]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -59,16 +74,25 @@ export function SubscriptionProvider({ children }) {
     return () => window.removeEventListener('techfix_subscription_required', handleSubRequired);
   }, []);
 
-  const upgradePlan = async (planId, billingCycle = 'monthly') => {
+  const upgradePlan = async (planId, paymentReference = '', billingCycle = 'monthly') => {
     try {
-      const res = await api.post('/subscriptions/upgrade', { planId, billingCycle });
+      const res = await api.post('/subscriptions/upgrade', {
+        planId,
+        paymentReference,
+        utr: paymentReference,
+        billingCycle
+      });
       if (res.data.success) {
         setSubscription(res.data.subscription);
         if (res.data.admin && updateAdmin) {
           updateAdmin(res.data.admin);
         }
-        setShowPaywallModal(false);
-        return { success: true, message: res.data.message };
+        return {
+          success: true,
+          message: res.data.message,
+          transactionId: res.data.transactionId,
+          subscription: res.data.subscription
+        };
       }
       return { success: false, message: res.data.message };
     } catch (err) {
@@ -102,6 +126,7 @@ export function SubscriptionProvider({ children }) {
       },
       closePaywall: () => setShowPaywallModal(false),
       refreshSubscription: fetchSubscription,
+      ownerPaymentConfig,
       upgradePlan,
       simulateToggle
     }}>
