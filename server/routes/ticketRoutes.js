@@ -25,8 +25,9 @@ router.get('/track/:query', async (req, res) => {
 
     const all = await RepairTicket.find();
     let ticket = all.find(t => 
-      t.ticketId.toUpperCase() === rawQuery.toUpperCase() ||
-      (t.customer && t.customer.phone && t.customer.phone.replace(/\D/g, '') === rawQuery.replace(/\D/g, ''))
+      !t.isDeleted &&
+      (t.ticketId.toUpperCase() === rawQuery.toUpperCase() ||
+      (t.customer && t.customer.phone && t.customer.phone.replace(/\D/g, '') === rawQuery.replace(/\D/g, '')))
     );
 
     if (!ticket) {
@@ -73,8 +74,11 @@ router.get('/track/:query', async (req, res) => {
 // GET /api/tickets/stats/dashboard - Dashboard KPIs and metrics
 router.get('/stats/dashboard', protectAdmin, async (req, res) => {
   try {
-    const tickets = await RepairTicket.find();
+    const allTickets = await RepairTicket.find();
     const inventory = await InventoryItem.find();
+
+    const tickets = allTickets.filter(t => !t.isDeleted);
+    const trashedCount = allTickets.filter(t => t.isDeleted === true).length;
 
     const totalTickets = tickets.length;
     const received = tickets.filter(t => t.status === 'RECEIVED').length;
@@ -157,7 +161,8 @@ router.get('/stats/dashboard', protectAdmin, async (req, res) => {
         pendingRevenue,
         deviceBreakdown,
         dailyTrends,
-        stageFunnel
+        stageFunnel,
+        trashedCount
       },
       recentTickets: tickets.slice(0, 7)
     });
@@ -167,11 +172,50 @@ router.get('/stats/dashboard', protectAdmin, async (req, res) => {
   }
 });
 
-// GET /api/tickets - List all tickets with filters
+// GET /api/tickets/trash/all - List all tickets in Trash Bin
+router.get('/trash/all', protectAdmin, async (req, res) => {
+  try {
+    const all = await RepairTicket.find();
+    const trashed = all
+      .filter(t => t.isDeleted === true)
+      .sort((a, b) => new Date(b.deletedAt || b.updatedAt || 0) - new Date(a.deletedAt || a.updatedAt || 0));
+
+    res.json({ success: true, count: trashed.length, tickets: trashed });
+  } catch (error) {
+    console.error('Fetch trash error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch trash bin tickets' });
+  }
+});
+
+// POST /api/tickets/trash/empty - Permanently erase all tickets in Trash Bin
+router.post('/trash/empty', protectAdmin, requireActiveSubscription, async (req, res) => {
+  try {
+    const all = await RepairTicket.find();
+    const trashed = all.filter(t => t.isDeleted === true);
+
+    for (const t of trashed) {
+      await RepairTicket.findByIdAndDelete(t._id || t.id);
+    }
+
+    res.json({
+      success: true,
+      message: `Trash Bin emptied. ${trashed.length} tickets permanently deleted.`,
+      deletedCount: trashed.length
+    });
+  } catch (error) {
+    console.error('Empty trash error:', error);
+    res.status(500).json({ success: false, message: 'Failed to empty trash bin' });
+  }
+});
+
+// GET /api/tickets - List all tickets with filters (excludes trashed by default)
 router.get('/', protectAdmin, async (req, res) => {
   try {
-    const { status, deviceType, search } = req.query;
-    let tickets = await RepairTicket.find();
+    const { status, deviceType, search, trash } = req.query;
+    const all = await RepairTicket.find();
+    let tickets = trash === 'true'
+      ? all.filter(t => t.isDeleted === true)
+      : all.filter(t => !t.isDeleted);
 
     if (status && status !== 'ALL') {
       tickets = tickets.filter(t => t.status === status);
@@ -192,7 +236,9 @@ router.get('/', protectAdmin, async (req, res) => {
       );
     }
 
-    res.json({ success: true, count: tickets.length, tickets });
+    const trashedTotal = all.filter(t => t.isDeleted === true).length;
+
+    res.json({ success: true, count: tickets.length, trashedTotal, tickets });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch tickets' });
   }
@@ -475,8 +521,48 @@ router.put('/:id', protectAdmin, requireActiveSubscription, async (req, res) => 
   }
 });
 
-// DELETE /api/tickets/:id - Delete a repair ticket permanently
-router.delete('/:id', protectAdmin, requireActiveSubscription, async (req, res) => {
+// POST /api/tickets/:id/restore - Restore ticket from Trash Bin
+router.post('/:id/restore', protectAdmin, requireActiveSubscription, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ticket = await RepairTicket.findById(id);
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Ticket not found' });
+    }
+
+    const updated = await RepairTicket.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isDeleted: false,
+          deletedAt: null,
+          statusHistory: [
+            ...(ticket.statusHistory || []),
+            {
+              status: 'RESTORED_FROM_TRASH',
+              timestamp: new Date().toISOString(),
+              note: 'Ticket restored from Trash Bin',
+              updatedBy: req.admin?.name || 'Admin'
+            }
+          ]
+        }
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: `Repair ticket #${ticket.ticketId} restored successfully!`,
+      ticket: updated
+    });
+  } catch (error) {
+    console.error('Restore ticket error:', error);
+    res.status(500).json({ success: false, message: 'Failed to restore repair ticket' });
+  }
+});
+
+// DELETE /api/tickets/:id/permanent - Permanently erase ticket from database
+router.delete('/:id/permanent', protectAdmin, requireActiveSubscription, async (req, res) => {
   try {
     const { id } = req.params;
     const ticket = await RepairTicket.findById(id);
@@ -488,7 +574,47 @@ router.delete('/:id', protectAdmin, requireActiveSubscription, async (req, res) 
 
     res.json({
       success: true,
-      message: `Repair ticket #${ticket.ticketId} deleted successfully`
+      message: `Repair ticket #${ticket.ticketId} permanently erased from database.`
+    });
+  } catch (error) {
+    console.error('Permanent delete ticket error:', error);
+    res.status(500).json({ success: false, message: 'Failed to permanently delete repair ticket' });
+  }
+});
+
+// DELETE /api/tickets/:id - Soft-delete repair ticket (Move to Trash Bin)
+router.delete('/:id', protectAdmin, requireActiveSubscription, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ticket = await RepairTicket.findById(id);
+    if (!ticket) {
+      return res.status(404).json({ success: false, message: 'Ticket not found' });
+    }
+
+    const updated = await RepairTicket.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          isDeleted: true,
+          deletedAt: new Date().toISOString(),
+          statusHistory: [
+            ...(ticket.statusHistory || []),
+            {
+              status: 'MOVED_TO_TRASH',
+              timestamp: new Date().toISOString(),
+              note: 'Ticket moved to Trash Bin',
+              updatedBy: req.admin?.name || 'Admin'
+            }
+          ]
+        }
+      },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: `Repair ticket #${ticket.ticketId} moved to Trash Bin. You can restore it anytime.`,
+      ticket: updated
     });
   } catch (error) {
     console.error('Delete ticket error:', error);

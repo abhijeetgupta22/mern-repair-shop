@@ -117,7 +117,7 @@ function MainApp() {
             {isAdminSection && isAuthenticated && (
               <>
                 {currentPage === 'admin-dashboard' && <AdminDashboard onNavigate={handleNavigate} />}
-                {currentPage === 'admin-tickets' && <AdminTickets onNavigate={handleNavigate} />}
+                {currentPage === 'admin-tickets' && <AdminTickets initialTab={pageParams.tab} onNavigate={handleNavigate} />}
                 {currentPage === 'admin-inventory' && (
                   <AdminInventory onNavigate={handleNavigate} />
                 )}

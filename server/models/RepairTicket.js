@@ -65,7 +65,10 @@ const repairTicketSchema = new mongoose.Schema({
     readyWhatsApp: { type: Boolean, default: false },
     readyEmail: { type: Boolean, default: false }
   },
-  internalNotes: { type: String, default: '' }
+  internalNotes: { type: String, default: '' },
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
+  deletedReason: { type: String, default: '' }
 }, { timestamps: true });
 
 let MongooseTicket = null;

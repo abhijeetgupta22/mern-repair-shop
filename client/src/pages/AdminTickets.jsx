@@ -15,7 +15,12 @@ import {
   User,
   Calendar,
   AlertCircle,
-  Trash2
+  Trash2,
+  RotateCcw,
+  History,
+  CheckCircle2,
+  RefreshCw,
+  Info
 } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge from '../components/StatusBadge';
@@ -23,13 +28,19 @@ import WhatsAppModal from '../components/WhatsAppModal';
 import EmailModal from '../components/EmailModal';
 import { useSubscription } from '../context/SubscriptionContext';
 
-export default function AdminTickets({ onNavigate }) {
+export default function AdminTickets({ onNavigate, initialTab = 'active' }) {
   const { openPaywall } = useSubscription();
   const [tickets, setTickets] = useState([]);
+  const [trashedTickets, setTrashedTickets] = useState([]);
+  const [trashedCount, setTrashedCount] = useState(0);
+  const [activeTab, setActiveTab] = useState(initialTab || 'active'); // 'active' | 'trash'
   const [loading, setLoading] = useState(true);
+  const [loadingTrash, setLoadingTrash] = useState(false);
   const [search, setSearch] = useState('');
+  const [trashSearch, setTrashSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [deviceFilter, setDeviceFilter] = useState('ALL');
+  const [toastMessage, setToastMessage] = useState(null); // { text, type, ticketId, label, canUndo }
 
   // Modals
   const [whatsAppData, setWhatsAppData] = useState(null);
@@ -62,6 +73,9 @@ export default function AdminTickets({ onNavigate }) {
       const res = await api.get('/tickets', { params });
       if (res.data.success) {
         setTickets(res.data.tickets || []);
+        if (res.data.trashedTotal !== undefined) {
+          setTrashedCount(res.data.trashedTotal);
+        }
       }
     } catch (err) {
       console.error('Error fetching tickets:', err);
@@ -70,9 +84,31 @@ export default function AdminTickets({ onNavigate }) {
     }
   };
 
+  const fetchTrashedTickets = async () => {
+    try {
+      setLoadingTrash(true);
+      const res = await api.get('/tickets/trash/all');
+      if (res.data.success) {
+        setTrashedTickets(res.data.tickets || []);
+        setTrashedCount(res.data.count || 0);
+      }
+    } catch (err) {
+      console.error('Error fetching trash tickets:', err);
+    } finally {
+      setLoadingTrash(false);
+    }
+  };
+
   useEffect(() => {
     fetchTickets();
+    fetchTrashedTickets();
   }, [statusFilter, deviceFilter]);
+
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -107,11 +143,12 @@ export default function AdminTickets({ onNavigate }) {
     }
   };
 
+  // Move ticket to Trash Bin (soft delete)
   const handleDeleteTicket = async (ticket) => {
     const id = ticket._id || ticket.id;
     const ticketLabel = ticket.ticketId ? `#${ticket.ticketId}` : 'this ticket';
     const confirmed = window.confirm(
-      `Are you sure you want to permanently delete repair ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'} - ${ticket.device?.brand || ''} ${ticket.device?.model || ''})?\n\nThis will remove the ticket from records permanently.`
+      `Move ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'} - ${ticket.device?.brand || ''} ${ticket.device?.model || ''}) to the Trash Bin?\n\nIf deleted by mistake, you can restore it anytime from the Trash Bin & History tab.`
     );
     if (!confirmed) return;
 
@@ -119,12 +156,107 @@ export default function AdminTickets({ onNavigate }) {
       const res = await api.delete(`/tickets/${id}`);
       if (res.data.success) {
         setTickets((prev) => prev.filter((t) => (t._id || t.id) !== id));
+        fetchTrashedTickets();
+        setToastMessage({
+          text: `Ticket ${ticketLabel} moved to Trash Bin.`,
+          ticketId: id,
+          label: ticketLabel,
+          canUndo: true
+        });
+        setTimeout(() => {
+          setToastMessage((prev) => (prev?.ticketId === id ? null : prev));
+        }, 10000);
       }
     } catch (err) {
       if (err.response?.status === 402) {
         openPaywall('Active subscription required to delete repair tickets');
       } else {
         alert(err.response?.data?.message || 'Failed to delete repair ticket');
+      }
+    }
+  };
+
+  // Restore ticket from Trash Bin
+  const handleRestoreTicket = async (ticketOrId, label = '') => {
+    const id = typeof ticketOrId === 'object' ? (ticketOrId._id || ticketOrId.id) : ticketOrId;
+    const ticketLabel = label || (typeof ticketOrId === 'object' && ticketOrId.ticketId ? `#${ticketOrId.ticketId}` : 'Ticket');
+
+    try {
+      const res = await api.post(`/tickets/${id}/restore`);
+      if (res.data.success) {
+        setTrashedTickets((prev) => prev.filter((t) => (t._id || t.id) !== id));
+        fetchTickets();
+        fetchTrashedTickets();
+        setToastMessage({
+          text: `${ticketLabel} restored successfully and returned to active repairs!`,
+          type: 'success',
+          canUndo: false
+        });
+        setTimeout(() => setToastMessage(null), 5000);
+      }
+    } catch (err) {
+      if (err.response?.status === 402) {
+        openPaywall('Active subscription required to restore repair tickets');
+      } else {
+        alert(err.response?.data?.message || 'Failed to restore ticket');
+      }
+    }
+  };
+
+  // Permanently erase ticket from database
+  const handlePermanentDelete = async (ticket) => {
+    const id = ticket._id || ticket.id;
+    const ticketLabel = ticket.ticketId ? `#${ticket.ticketId}` : 'this ticket';
+    const confirmed = window.confirm(
+      `⚠️ PERMANENT DELETION WARNING:\n\nAre you sure you want to permanently destroy ticket ${ticketLabel}?\n\nThis action CANNOT be undone and will erase this ticket forever from your database.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.delete(`/tickets/${id}/permanent`);
+      if (res.data.success) {
+        setTrashedTickets((prev) => prev.filter((t) => (t._id || t.id) !== id));
+        setToastMessage({
+          text: `Ticket ${ticketLabel} permanently erased from database.`,
+          type: 'info',
+          canUndo: false
+        });
+        setTimeout(() => setToastMessage(null), 4000);
+      }
+    } catch (err) {
+      if (err.response?.status === 402) {
+        openPaywall('Active subscription required to permanently delete tickets');
+      } else {
+        alert(err.response?.data?.message || 'Failed to permanently delete ticket');
+      }
+    }
+  };
+
+  // Empty entire Trash Bin
+  const handleEmptyTrash = async () => {
+    if (!trashedTickets.length) return;
+    const confirmed = window.confirm(
+      `⚠️ EMPTY TRASH BIN CONFIRMATION:\n\nAre you sure you want to permanently delete all ${trashedTickets.length} ticket(s) in the Trash Bin?\n\nThis cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await api.post('/tickets/trash/empty');
+      if (res.data.success) {
+        setTrashedTickets([]);
+        setTrashedCount(0);
+        setToastMessage({
+          text: `Trash Bin emptied (${res.data.deletedCount || 0} tickets permanently erased).`,
+          type: 'info',
+          canUndo: false
+        });
+        setTimeout(() => setToastMessage(null), 4000);
+      }
+    } catch (err) {
+      if (err.response?.status === 402) {
+        openPaywall('Active subscription required to empty trash bin');
+      } else {
+        alert(err.response?.data?.message || 'Failed to empty trash bin');
       }
     }
   };
@@ -192,6 +324,19 @@ export default function AdminTickets({ onNavigate }) {
     }
   };
 
+  const filteredTrash = trashedTickets.filter((t) => {
+    if (!trashSearch) return true;
+    const q = trashSearch.toLowerCase();
+    return (
+      (t.ticketId && t.ticketId.toLowerCase().includes(q)) ||
+      (t.customer?.name && t.customer.name.toLowerCase().includes(q)) ||
+      (t.customer?.phone && t.customer.phone.includes(q)) ||
+      (t.device?.brand && t.device.brand.toLowerCase().includes(q)) ||
+      (t.device?.model && t.device.model.toLowerCase().includes(q)) ||
+      (t.issueDescription && t.issueDescription.toLowerCase().includes(q))
+    );
+  });
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Top bar */}
@@ -214,10 +359,98 @@ export default function AdminTickets({ onNavigate }) {
         </button>
       </div>
 
-      {/* Filters & Search Bar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Floating Action / Undo Notification Banner */}
+      {toastMessage && (
+        <div className="p-4 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl flex items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            {toastMessage.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600 flex-shrink-0" />
+            ) : (
+              <Info className="w-4 h-4 text-blue-400 dark:text-blue-600 flex-shrink-0" />
+            )}
+            <span>{toastMessage.text}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {toastMessage.canUndo && toastMessage.ticketId && (
+              <button
+                onClick={() => handleRestoreTicket(toastMessage.ticketId, toastMessage.label)}
+                className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1 transition shadow-sm"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Undo / Restore</span>
+              </button>
+            )}
+            <button
+              onClick={() => setToastMessage(null)}
+              className="text-slate-400 hover:text-white dark:hover:text-slate-900 text-xs px-1"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* View Switcher: Active Repairs vs Trash Bin & History */}
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab('active')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'active'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Wrench className="w-3.5 h-3.5" />
+            <span>Active Tickets</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+              activeTab === 'active' ? 'bg-blue-800 text-blue-100' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+            }`}>
+              {tickets.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('trash')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+              activeTab === 'trash'
+                ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Trash Bin & History</span>
+            {trashedCount > 0 && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                activeTab === 'trash' ? 'bg-rose-800 text-white' : 'bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300'
+              }`}>
+                {trashedCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        {activeTab === 'trash' && trashedTickets.length > 0 && (
+          <button
+            type="button"
+            onClick={handleEmptyTrash}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 hover:bg-rose-100 text-xs font-bold transition"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Empty Trash Bin</span>
+          </button>
+        )}
+      </div>
+
+      {activeTab === 'active' && (
+        <>
+          {/* Filters & Search Bar */}
+          <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+            <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
@@ -373,10 +606,10 @@ export default function AdminTickets({ onNavigate }) {
                       <ExternalLink className="w-4 h-4" />
                     </button>
 
-                    {/* Delete Ticket */}
+                    {/* Delete Ticket (Soft Delete to Trash Bin) */}
                     <button
                       onClick={() => handleDeleteTicket(t)}
-                      title="Permanently Delete Ticket"
+                      title="Move to Trash Bin"
                       className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -493,7 +726,7 @@ export default function AdminTickets({ onNavigate }) {
                 <button
                   onClick={() => handleDeleteTicket(t)}
                   className="p-2 rounded-xl bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
-                  title="Permanently Delete Ticket"
+                  title="Move to Trash Bin"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -502,6 +735,236 @@ export default function AdminTickets({ onNavigate }) {
           ))}
         </div>
       </div>
+    </>
+  )}
+
+  {/* TRASH BIN & DELETION HISTORY VIEW */}
+  {activeTab === 'trash' && (
+    <div className="space-y-4 animate-fadeIn">
+      {/* Informational Protection Banner */}
+      <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3">
+        <History className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+        <div className="text-xs">
+          <span className="font-bold text-amber-900 dark:text-amber-200 block">
+            Trash Bin & Accidental Deletion Protection
+          </span>
+          <p className="text-amber-800 dark:text-amber-300 mt-0.5">
+            Tickets deleted by mistake are stored safely here with all customer info, diagnostics, and billing history. Click <strong className="text-emerald-700 dark:text-emerald-300">"Restore"</strong> to immediately return any ticket back to active repairs.
+          </p>
+        </div>
+      </div>
+
+      {/* Trash Search & Controls Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={trashSearch}
+            onChange={(e) => setTrashSearch(e.target.value)}
+            placeholder="Search deleted tickets..."
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={fetchTrashedTickets}
+            className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            title="Refresh Trash Bin"
+          >
+            <RefreshCw className={`w-4 h-4 ${loadingTrash ? 'animate-spin' : ''}`} />
+          </button>
+
+          {trashedTickets.length > 0 && (
+            <button
+              type="button"
+              onClick={handleEmptyTrash}
+              className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 text-xs font-bold transition flex items-center gap-1.5"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Empty Trash ({trashedTickets.length})</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Empty State */}
+      {filteredTrash.length === 0 ? (
+        <div className="p-12 text-center rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3 shadow-sm">
+          <div className="w-14 h-14 rounded-3xl bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+            <Trash2 className="w-7 h-7" />
+          </div>
+          <h4 className="text-base font-bold text-slate-800 dark:text-slate-200">
+            {trashSearch ? 'No deleted tickets matching search' : 'Trash Bin is empty'}
+          </h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
+            {trashSearch
+              ? 'Try searching with a different ticket ID or customer name.'
+              : 'No tickets have been deleted. If a ticket is deleted in the future, you can recover it here.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => setActiveTab('active')}
+            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm"
+          >
+            Return to Active Tickets
+          </button>
+        </div>
+      ) : (
+        <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+          {/* Desktop Table for Trashed Items */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-semibold">
+                  <th className="pb-3 px-3">Ticket ID</th>
+                  <th className="pb-3 px-3">Deleted When</th>
+                  <th className="pb-3 px-3">Customer Info</th>
+                  <th className="pb-3 px-3">Device & Issue</th>
+                  <th className="pb-3 px-3">Status / Cost</th>
+                  <th className="pb-3 px-3 text-right">Recovery Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                {filteredTrash.map((t) => (
+                  <tr key={t._id || t.ticketId} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+                    <td className="py-3 px-3 font-bold text-slate-900 dark:text-white whitespace-nowrap">
+                      <span className="line-through text-slate-400 mr-1.5">#{t.ticketId}</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                        IN TRASH
+                      </span>
+                    </td>
+
+                    <td className="py-3 px-3 text-slate-500 whitespace-nowrap">
+                      <div className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                        <History className="w-3.5 h-3.5 text-amber-500" />
+                        <span>{new Date(t.deletedAt || t.updatedAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {new Date(t.deletedAt || t.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-3">
+                      <div className="font-semibold text-slate-800 dark:text-slate-200">
+                        {t.customer?.name}
+                      </div>
+                      <div className="text-[11px] text-slate-500 flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-slate-400" />
+                        <span>{t.customer?.phone}</span>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-3 max-w-xs">
+                      <div className="font-semibold text-slate-800 dark:text-slate-200">
+                        {t.device?.brand} {t.device?.model}
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                        {t.issueDescription}
+                      </p>
+                    </td>
+
+                    <td className="py-3 px-3 whitespace-nowrap">
+                      <div className="font-bold text-slate-900 dark:text-white">
+                        ₹{t.finalCost || t.estimatedCost || 0}
+                      </div>
+                      <span className="text-[10px] text-slate-400">
+                        Was: {t.status}
+                      </span>
+                    </td>
+
+                    <td className="py-3 px-3 text-right space-x-2 whitespace-nowrap">
+                      {/* Restore Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleRestoreTicket(t)}
+                        title="Restore ticket back to active repairs"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Restore</span>
+                      </button>
+
+                      {/* Delete Forever Button */}
+                      <button
+                        type="button"
+                        onClick={() => handlePermanentDelete(t)}
+                        title="Permanently erase forever from database"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/60 hover:bg-rose-100 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 font-bold text-xs transition"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete Forever</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards for Trashed Items */}
+          <div className="md:hidden space-y-3">
+            {filteredTrash.map((t) => (
+              <div
+                key={t._id || t.ticketId}
+                className="p-4 rounded-2xl bg-rose-50/40 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 space-y-3"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="line-through text-slate-400 font-bold text-xs">#{t.ticketId}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300">
+                      DELETED
+                    </span>
+                  </div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <History className="w-3 h-3 text-amber-500" />
+                    <span>{new Date(t.deletedAt || t.updatedAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="font-bold text-xs text-slate-900 dark:text-white">
+                    {t.customer?.name} • <span className="text-slate-500 font-normal">{t.customer?.phone}</span>
+                  </div>
+                  <div className="text-xs text-slate-700 dark:text-slate-300 mt-0.5">
+                    {t.device?.brand} {t.device?.model}
+                  </div>
+                  {t.issueDescription && (
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 mt-0.5">
+                      {t.issueDescription}
+                    </p>
+                  )}
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex items-center gap-2 pt-2 border-t border-rose-200/80 dark:border-rose-900/60">
+                  <button
+                    type="button"
+                    onClick={() => handleRestoreTicket(t)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Restore Ticket</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handlePermanentDelete(t)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 text-rose-600 dark:text-rose-400 font-bold text-xs transition"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Forever</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )}
 
       {/* Intake Modal */}
       {showIntakeModal && (

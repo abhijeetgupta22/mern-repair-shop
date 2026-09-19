@@ -118,7 +118,7 @@ export default function AdminDashboard({ onNavigate }) {
     const id = ticket._id || ticket.id;
     const ticketLabel = ticket.ticketId ? `#${ticket.ticketId}` : 'this ticket';
     const confirmed = window.confirm(
-      `Are you sure you want to permanently delete repair ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'})?\n\nThis will remove the ticket from records permanently.`
+      `Move repair ticket ${ticketLabel} (${ticket.customer?.name || 'Customer'}) to Trash Bin?\n\nIf deleted by mistake, you can restore it anytime from Tickets > Trash Bin & History.`
     );
     if (!confirmed) return;
 
@@ -354,13 +354,25 @@ export default function AdminDashboard({ onNavigate }) {
               Change status, dispatch WhatsApp / Email updates, or generate bills.
             </p>
           </div>
-          <button
-            onClick={() => onNavigate('admin-tickets')}
-            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-          >
-            <span>View All Tickets</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-3">
+            {stats?.trashedCount > 0 && (
+              <button
+                type="button"
+                onClick={() => onNavigate('admin-tickets', { tab: 'trash' })}
+                className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline flex items-center gap-1 bg-rose-50 dark:bg-rose-950/60 px-2.5 py-1 rounded-xl border border-rose-200 dark:border-rose-900"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span>Trash Bin ({stats.trashedCount})</span>
+              </button>
+            )}
+            <button
+              onClick={() => onNavigate('admin-tickets')}
+              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+            >
+              <span>View All Tickets</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
         {/* Desktop Table View (>= 768px) */}
@@ -436,10 +448,10 @@ export default function AdminDashboard({ onNavigate }) {
                       <ExternalLink className="w-3.5 h-3.5" />
                     </button>
 
-                    {/* Delete ticket */}
+                    {/* Delete ticket (Soft delete to Trash Bin) */}
                     <button
                       onClick={() => handleDeleteTicket(t)}
-                      title="Permanently Delete Ticket"
+                      title="Move to Trash Bin"
                       className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -518,7 +530,7 @@ export default function AdminDashboard({ onNavigate }) {
                   <button
                     onClick={() => handleDeleteTicket(t)}
                     className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-400 shadow-sm hover:bg-rose-100 dark:hover:bg-rose-900/40 transition"
-                    title="Delete Ticket"
+                    title="Move to Trash Bin"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
