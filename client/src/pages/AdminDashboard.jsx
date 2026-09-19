@@ -16,22 +16,31 @@ import {
   Mail,
   Receipt,
   ExternalLink,
-  ChevronRight
+  ChevronRight,
+  Store,
+  MapPin,
+  Phone,
+  QrCode
 } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge from '../components/StatusBadge';
 import WhatsAppModal from '../components/WhatsAppModal';
 import EmailModal from '../components/EmailModal';
+import ShopSetupModal from '../components/ShopSetupModal';
+import DashboardGraphs from '../components/DashboardGraphs';
 import { useSubscription } from '../context/SubscriptionContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function AdminDashboard({ onNavigate }) {
   const { openPaywall } = useSubscription();
+  const { admin } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentTickets, setRecentTickets] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Modals
   const [showIntakeModal, setShowIntakeModal] = useState(false);
+  const [showShopSetupModal, setShowShopSetupModal] = useState(false);
   const [whatsAppData, setWhatsAppData] = useState(null);
   const [emailData, setEmailData] = useState(null);
 
@@ -49,6 +58,13 @@ export default function AdminDashboard({ onNavigate }) {
     estimatedCost: '',
     laborCost: ''
   });
+
+  // Prompt shop setup if opening the website right after login and not yet configured
+  useEffect(() => {
+    if (admin && admin.isConfigured === false) {
+      setShowShopSetupModal(true);
+    }
+  }, [admin]);
 
   const fetchDashboardData = async () => {
     try {
@@ -77,7 +93,6 @@ export default function AdminDashboard({ onNavigate }) {
       });
       if (res.data.success) {
         fetchDashboardData();
-        // If ready for delivery alert returned, open WhatsApp modal preview
         if (res.data.notificationAlert?.whatsapp) {
           setWhatsAppData({
             ticketId: res.data.ticket.ticketId,
@@ -124,7 +139,6 @@ export default function AdminDashboard({ onNavigate }) {
         setShowIntakeModal(false);
         fetchDashboardData();
 
-        // Reset
         setNewTicket({
           customerName: '',
           customerPhone: '',
@@ -139,7 +153,6 @@ export default function AdminDashboard({ onNavigate }) {
           laborCost: ''
         });
 
-        // Trigger WhatsApp intake confirmation preview
         if (res.data.notifications?.whatsapp) {
           setWhatsAppData({
             ticketId: res.data.ticket.ticketId,
@@ -186,26 +199,45 @@ export default function AdminDashboard({ onNavigate }) {
       {/* Header & Quick Action */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            Shop Operations Dashboard
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              {admin?.shopName || 'Shop Operations Dashboard'}
+            </h1>
+            <button
+              onClick={() => setShowShopSetupModal(true)}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-800 transition"
+              title="Edit Shop Details (Name, Address, Gmail, Mobile, UPI ID)"
+            >
+              <Store className="w-4 h-4 text-blue-500" />
+            </button>
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Real-time repairs pipeline, device stages, stock threshold alerts, and revenue metrics.
+            {admin?.address || 'Electronics Market'} • 📞 {admin?.phone || '+91 98765 43210'} • 💳 UPI: {admin?.upiId || 'apexrepair@upi'}
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Shop Setup / Edit Button */}
+          <button
+            onClick={() => setShowShopSetupModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
+            title="Edit Shop Name, Address, Gmail ID, Mobile, UPI ID"
+          >
+            <Store className="w-3.5 h-3.5 text-blue-500" />
+            <span>Shop Profile</span>
+          </button>
+
           <button
             onClick={() => onNavigate('admin-inventory')}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
           >
-            <Boxes className="w-4 h-4 text-blue-500" />
-            <span>Manage Inventory</span>
+            <Boxes className="w-3.5 h-3.5 text-indigo-500" />
+            <span>Inventory (+ / -)</span>
           </button>
 
           <button
             onClick={() => setShowIntakeModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Repair Intake</span>
@@ -284,141 +316,114 @@ export default function AdminDashboard({ onNavigate }) {
         </div>
       </div>
 
-      {/* Device Breakdown & Pipeline Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Device Categories */}
-        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-            Device Distribution
-          </h3>
+      {/* DASHBOARD INTERACTIVE GRAPHS (Weekly Trends, Device Category Shares, Revenue Split) */}
+      <DashboardGraphs stats={stats} />
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex items-center gap-3">
-                <Laptop className="w-5 h-5 text-blue-500" />
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Laptops</span>
-              </div>
-              <span className="text-sm font-black text-slate-900 dark:text-white">
-                {stats?.deviceBreakdown?.LAPTOP ?? 0}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex items-center gap-3">
-                <Smartphone className="w-5 h-5 text-emerald-500" />
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Mobile Phones</span>
-              </div>
-              <span className="text-sm font-black text-slate-900 dark:text-white">
-                {stats?.deviceBreakdown?.MOBILE ?? 0}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex items-center gap-3">
-                <Monitor className="w-5 h-5 text-indigo-500" />
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Desktop PCs</span>
-              </div>
-              <span className="text-sm font-black text-slate-900 dark:text-white">
-                {stats?.deviceBreakdown?.DESKTOP ?? 0}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Repairs Table */}
-        <div className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
+      {/* Recent Repairs Table */}
+      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Recent Repairs in Progress
             </h3>
-            <button
-              onClick={() => onNavigate('admin-tickets')}
-              className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
-            >
-              <span>View All</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
-            </button>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Change status, dispatch WhatsApp / Email updates, or generate bills.
+            </p>
           </div>
+          <button
+            onClick={() => onNavigate('admin-tickets')}
+            className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+          >
+            <span>View All Tickets</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-semibold">
-                  <th className="pb-3 px-2">Ticket</th>
-                  <th className="pb-3 px-2">Customer / Device</th>
-                  <th className="pb-3 px-2">Current Status</th>
-                  <th className="pb-3 px-2 text-right">Actions</th>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-semibold">
+                <th className="pb-3 px-2">Ticket</th>
+                <th className="pb-3 px-2">Customer / Device</th>
+                <th className="pb-3 px-2">Current Status</th>
+                <th className="pb-3 px-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+              {recentTickets.map((t) => (
+                <tr key={t._id || t.ticketId} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
+                  <td className="py-3 px-2 font-bold text-slate-900 dark:text-white">
+                    #{t.ticketId}
+                  </td>
+                  <td className="py-3 px-2">
+                    <div className="font-semibold text-slate-800 dark:text-slate-200">
+                      {t.device?.brand} {t.device?.model}
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      {t.customer?.name} • {t.customer?.phone}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2">
+                    <select
+                      value={t.status}
+                      onChange={(e) => handleStatusChange(t._id || t.id, e.target.value)}
+                      className="text-xs font-medium py-1 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="RECEIVED">Received</option>
+                      <option value="DIAGNOSING">Diagnosing</option>
+                      <option value="WAITING_PARTS">Waiting for Parts</option>
+                      <option value="IN_REPAIR">In Repair</option>
+                      <option value="QUALITY_CHECK">Quality Check</option>
+                      <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
+                      <option value="DELIVERED">Delivered</option>
+                    </select>
+                  </td>
+                  <td className="py-3 px-2 text-right space-x-1 whitespace-nowrap">
+                    {/* WhatsApp trigger */}
+                    <button
+                      onClick={() => handleOpenWhatsAppPreview(t)}
+                      title="Open WhatsApp Notification Preview"
+                      className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Email trigger */}
+                    {t.customer?.email && (
+                      <button
+                        onClick={() => setEmailData({
+                          ticket: t,
+                          triggerType: t.status === 'READY_FOR_DELIVERY' ? 'READY_FOR_DELIVERY' : 'INTAKE_CONFIRMATION'
+                        })}
+                        title="Send Email Update"
+                        className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
+                    {/* Live customer tracking link */}
+                    <button
+                      onClick={() => onNavigate('track', { query: t.ticketId })}
+                      title="View Public Tracker"
+                      className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {recentTickets.map((t) => (
-                  <tr key={t._id || t.ticketId} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                    <td className="py-3 px-2 font-bold text-slate-900 dark:text-white">
-                      #{t.ticketId}
-                    </td>
-                    <td className="py-3 px-2">
-                      <div className="font-semibold text-slate-800 dark:text-slate-200">
-                        {t.device?.brand} {t.device?.model}
-                      </div>
-                      <div className="text-[11px] text-slate-400">
-                        {t.customer?.name} • {t.customer?.phone}
-                      </div>
-                    </td>
-                    <td className="py-3 px-2">
-                      <select
-                        value={t.status}
-                        onChange={(e) => handleStatusChange(t._id || t.id, e.target.value)}
-                        className="text-xs font-medium py-1 px-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      >
-                        <option value="RECEIVED">Received</option>
-                        <option value="DIAGNOSING">Diagnosing</option>
-                        <option value="WAITING_PARTS">Waiting for Parts</option>
-                        <option value="IN_REPAIR">In Repair</option>
-                        <option value="QUALITY_CHECK">Quality Check</option>
-                        <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
-                        <option value="DELIVERED">Delivered</option>
-                      </select>
-                    </td>
-                    <td className="py-3 px-2 text-right space-x-1 whitespace-nowrap">
-                      {/* WhatsApp trigger */}
-                      <button
-                        onClick={() => handleOpenWhatsAppPreview(t)}
-                        title="Open WhatsApp Notification Preview"
-                        className="p-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 transition"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                      </button>
-
-                      {/* Email trigger */}
-                      {t.customer?.email && (
-                        <button
-                          onClick={() => setEmailData({
-                            ticket: t,
-                            triggerType: t.status === 'READY_FOR_DELIVERY' ? 'READY_FOR_DELIVERY' : 'INTAKE_CONFIRMATION'
-                          })}
-                          title="Send Email Update"
-                          className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 hover:bg-blue-100 transition"
-                        >
-                          <Mail className="w-3.5 h-3.5" />
-                        </button>
-                      )}
-
-                      {/* Live customer tracking link */}
-                      <button
-                        onClick={() => onNavigate('track', { query: t.ticketId })}
-                        title="View Public Tracker"
-                        className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* SHOP SETUP / PROFILE MODAL (Opens right after login if unconfigured, or on click) */}
+      <ShopSetupModal
+        isOpen={showShopSetupModal}
+        onClose={() => setShowShopSetupModal(false)}
+        isFirstTime={admin && admin.isConfigured === false}
+      />
 
       {/* NEW REPAIR INTAKE MODAL */}
       {showIntakeModal && (
@@ -601,6 +606,13 @@ export default function AdminDashboard({ onNavigate }) {
           triggerType={emailData.triggerType}
         />
       )}
+
+      {/* Shop Setup / Profile Modal */}
+      <ShopSetupModal
+        isOpen={showShopSetupModal}
+        onClose={() => setShowShopSetupModal(false)}
+        isFirstTime={admin && admin.isConfigured === false}
+      />
     </div>
   );
 }

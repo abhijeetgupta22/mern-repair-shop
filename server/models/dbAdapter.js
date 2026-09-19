@@ -60,15 +60,30 @@ export function createAdapter(collectionKey, mongooseModel) {
 
       const current = items[index];
       const updated = {
-        ...current,
-        ...(update.$set || update),
+        ...JSON.parse(JSON.stringify(current)),
         updatedAt: new Date().toISOString()
       };
+
+      const setEntries = Object.entries(update.$set || update);
+      for (const [key, val] of setEntries) {
+        if (key === '$set' || key === '$inc') continue;
+        if (key.includes('.')) {
+          setNestedVal(updated, key, val);
+          delete updated[key];
+        } else {
+          updated[key] = val;
+        }
+      }
 
       // Handle $inc if present
       if (update.$inc) {
         for (const [key, val] of Object.entries(update.$inc)) {
-          updated[key] = (Number(current[key]) || 0) + Number(val);
+          if (key.includes('.')) {
+            const curVal = getNestedVal(updated, key) || 0;
+            setNestedVal(updated, key, Number(curVal) + Number(val));
+          } else {
+            updated[key] = (Number(updated[key]) || 0) + Number(val);
+          }
         }
       }
 
@@ -127,4 +142,17 @@ function matchQuery(item, query) {
 
 function getNestedVal(obj, path) {
   return path.split('.').reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj);
+}
+
+function setNestedVal(obj, path, val) {
+  const parts = path.split('.');
+  let current = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    const part = parts[i];
+    if (!current[part] || typeof current[part] !== 'object') {
+      current[part] = {};
+    }
+    current = current[part];
+  }
+  current[parts[parts.length - 1]] = val;
 }

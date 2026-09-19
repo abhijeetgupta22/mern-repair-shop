@@ -1,8 +1,19 @@
 import React from 'react';
 import { Printer, X, Download, CheckCircle, ShieldCheck, QrCode } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
+  const { admin } = useAuth();
   if (!isOpen || !invoice) return null;
+
+  const shopName = admin?.shopName || 'TechFix Pro Care';
+  const shopAddress = admin?.address || 'TechFix Hub, Electronics Market, Station Road';
+  const shopEmail = admin?.shopEmail || 'support@techfix.com';
+  const shopPhone = admin?.phone || '+91 98765 43210';
+  const upiId = admin?.upiId || 'techfix@upi';
+
+  const upiPayString = `upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(shopName)}&am=${invoice.totalAmount}&cu=INR`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(upiPayString)}`;
 
   const handlePrint = () => {
     window.print();
@@ -49,13 +60,13 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
           <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-6">
             <div>
               <div className="flex items-center gap-2 text-2xl font-black text-blue-600 tracking-tight">
-                <span>TechFix</span>
+                <span>{shopName}</span>
                 <span className="text-xs px-2 py-0.5 rounded bg-blue-600 text-white font-extrabold">PRO CARE</span>
               </div>
               <p className="text-xs text-slate-500 mt-1">Multi-Brand Laptop, Desktop & Mobile Repair Center</p>
-              <p className="text-xs text-slate-600 mt-2">
-                TechFix Hub, Electronics Market, Station Road<br />
-                Phone: +91 98765 43210 • GSTIN: 29AAACT9812K1Z5
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                {shopAddress}<br />
+                Phone: {shopPhone} • Email: {shopEmail} • UPI ID: {upiId}
               </p>
             </div>
 
@@ -131,12 +142,27 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
           {/* Totals Calculation */}
           <div className="flex justify-between items-start pt-2 border-t border-slate-200 mb-6 text-xs">
             <div className="max-w-xs space-y-2">
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                <p className="font-bold text-slate-800 mb-1">Payment Instructions:</p>
-                <p className="text-slate-600 text-[11px]">
-                  UPI: <strong>techfix@upi</strong> • Cash & Cards accepted at counter.<br />
-                  For instant payment verification, show this invoice.
-                </p>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between gap-3">
+                <div className="flex-1">
+                  <p className="font-bold text-slate-800 mb-1">Payment Instructions:</p>
+                  <p className="text-slate-600 text-[11px] leading-relaxed">
+                    UPI ID: <strong className="text-blue-600">{upiId}</strong><br />
+                    Phone: {shopPhone}<br />
+                    Email: {shopEmail}<br />
+                    Cash, Card & UPI accepted.
+                  </p>
+                </div>
+                <div className="flex flex-col items-center justify-center p-1.5 bg-white border border-slate-300 rounded-xl shadow-sm flex-shrink-0">
+                  <img
+                    src={qrCodeUrl}
+                    alt="UPI Payment QR Code"
+                    className="w-16 h-16 object-contain"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                  <span className="text-[9px] font-bold text-slate-600 mt-1">Scan UPI QR</span>
+                </div>
               </div>
               <p className="text-[11px] text-slate-500 italic">
                 * Replaced parts carry a 90-day warranty against manufacturing defects. Physical and liquid damage void warranty.
@@ -178,11 +204,11 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
           <div className="pt-8 border-t border-slate-200 flex justify-between items-end text-xs text-slate-500">
             <div>
               <p className="font-bold text-slate-800">Authorized Signature</p>
-              <p className="text-[10px] text-slate-400 mt-6">TechFix Pro Care Repair Hub</p>
+              <p className="text-[10px] text-slate-400 mt-6">{shopName} Repair Hub</p>
             </div>
             <div className="text-right text-[11px]">
-              <p>Thank you for choosing TechFix Pro Care!</p>
-              <p>Visit us: www.techfixpro.com • Helpline: +91 98765 43210</p>
+              <p className="font-medium text-slate-700">Thank you for trusting {shopName}!</p>
+              <p>Email: {shopEmail} • Helpline: {shopPhone}</p>
             </div>
           </div>
         </div>

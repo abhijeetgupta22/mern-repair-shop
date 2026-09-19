@@ -54,6 +54,24 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const register = async (userData) => {
+    try {
+      const res = await api.post('/auth/register', userData);
+      if (res.data && res.data.success) {
+        setToken(res.data.token);
+        setAdmin(res.data.admin);
+        localStorage.setItem('techfix_token', res.data.token);
+        localStorage.setItem('techfix_admin', JSON.stringify(res.data.admin));
+        return { success: true };
+      }
+      return { success: false, message: res.data?.message || 'Registration failed.' };
+    } catch (err) {
+      console.error('Registration request error:', err);
+      const msg = err.response?.data?.message || err.message || 'Cannot connect to server. Please verify backend is running.';
+      return { success: false, message: msg };
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setAdmin(null);
@@ -73,6 +91,7 @@ export function AuthProvider({ children }) {
       isAuthenticated: !!token && !!admin,
       loading,
       login,
+      register,
       logout,
       updateAdmin
     }}>

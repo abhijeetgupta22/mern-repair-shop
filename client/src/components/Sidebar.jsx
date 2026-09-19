@@ -10,12 +10,13 @@ import {
   ExternalLink,
   ShieldCheck,
   Zap,
-  AlertCircle
+  AlertCircle,
+  Store
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useSubscription } from '../context/SubscriptionContext';
 
-export default function Sidebar({ currentPage, onNavigate }) {
+export default function Sidebar({ currentPage, onNavigate, onOpenShopProfile }) {
   const { admin, logout } = useAuth();
   const { subscription, openPaywall } = useSubscription();
 
@@ -67,6 +68,16 @@ export default function Sidebar({ currentPage, onNavigate }) {
               </span>
             )}
           </div>
+
+          {/* Shop Setup / Profile Button */}
+          <button
+            onClick={onOpenShopProfile}
+            className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-900/60 text-blue-600 dark:text-blue-400 text-xs font-semibold border border-blue-200/60 dark:border-blue-800/60 transition shadow-sm"
+            title="Update Shop Name, Address, Gmail ID, Mobile & UPI ID"
+          >
+            <Store className="w-3.5 h-3.5 text-blue-500" />
+            <span>Shop Profile & UPI</span>
+          </button>
         </div>
 
         {/* Navigation Menu */}

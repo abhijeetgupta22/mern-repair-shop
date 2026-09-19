@@ -3,25 +3,48 @@
     {
       "_id": "id_5d0ge5q1l_1789497762086",
       "createdAt": "2026-09-15T18:42:42.085Z",
-      "updatedAt": "2026-09-16T05:36:54.728Z",
+      "updatedAt": "2026-09-19T07:13:56.587Z",
       "name": "Vikram Sharma",
-      "email": "admin@techfix.com",
-      "password": "$2a$10$K99.RiBbzLYhj1KS2.p1bOBjp7UAUANzLr9HjKjGsJdHigp7jAY02",
-      "shopName": "TechFix Pro Care Hub",
-      "phone": "+91 98765 43210",
-      "address": "Shop 104, Tech Arcade, Cyber City, Bangalore",
-      "upiId": "techfix@upi",
+      "email": "guptaabhijeet396@gmail.com",
+      "password": "$2a$10$se6chZarM20VhgvPIYZn.e2ZOYLqARTO9Cc6coBt1QBGWu8WA/vWa",
+      "shopName": "Gupta Variety Store",
+      "phone": "7848962669",
+      "address": "Sarna Chowk,Jagda,Rourkela-769042",
+      "upiId": "guptaabhijeet396@okhdfcbank",
       "subscription": {
-        "plan": "PRO",
+        "plan": "1_MONTH",
         "status": "ACTIVE",
-        "startDate": "2026-09-15T18:42:42.085Z",
-        "expiresAt": "2026-10-15T18:42:42.085Z",
-        "price": 1999,
+        "startDate": "2026-09-19T07:13:56.581Z",
+        "expiresAt": "2026-10-19T07:13:56.580Z",
+        "price": 599,
         "billingCycle": "monthly",
-        "ticketLimit": 1000
+        "ticketLimit": 99999
       },
-      "subscription.status": "EXPIRED",
-      "subscription.expiresAt": "2026-09-15T05:36:54.726Z"
+      "isConfigured": true,
+      "shopEmail": "guptaabhijeet396@gmail.com"
+    },
+    {
+      "_id": "id_u0s935zr0_1789801601228",
+      "createdAt": "2026-09-19T07:06:41.227Z",
+      "updatedAt": "2026-09-19T07:07:00.204Z",
+      "name": "Custom Owner",
+      "email": "newemail@myshop.com",
+      "password": "$2a$10$/V2bXSCmjzWDlcuwBiDyrOM0OhNKSQMbLDPqA09FuLbX.Cpf2uEhi",
+      "shopName": "Updated Clinic",
+      "phone": "+91 99887 76655",
+      "address": "Shop 104, Tech Arcade, Electronics Market",
+      "shopEmail": "mycustomshop@gmail.com",
+      "upiId": "customshop@upi",
+      "isConfigured": true,
+      "subscription": {
+        "plan": "FREE_TRIAL",
+        "status": "TRIAL",
+        "startDate": "2026-09-19T07:06:41.227Z",
+        "expiresAt": "2026-10-17T07:06:41.227Z",
+        "price": 0,
+        "billingCycle": "trial",
+        "ticketLimit": 99999
+      }
     }
   ],
   "tickets": [
@@ -385,7 +408,7 @@
     {
       "_id": "id_4nyz7nycc_1789536157267",
       "createdAt": "2026-09-16T05:22:37.267Z",
-      "updatedAt": "2026-09-16T05:22:41.761Z",
+      "updatedAt": "2026-09-19T07:01:04.507Z",
       "ticketId": "REP-1008",
       "customer": {
         "name": "Abhijeet Gupta",
@@ -402,12 +425,18 @@
         "passcode": ""
       },
       "issueDescription": "screen blackout",
-      "status": "RECEIVED",
+      "status": "READY_FOR_DELIVERY",
       "statusHistory": [
         {
           "status": "RECEIVED",
           "timestamp": "2026-09-16T05:22:37.267Z",
           "note": "Device intake completed. Initial assessment pending.",
+          "updatedBy": "Vikram Sharma"
+        },
+        {
+          "status": "READY_FOR_DELIVERY",
+          "timestamp": "2026-09-19T07:01:04.505Z",
+          "note": "Status updated from RECEIVED to READY_FOR_DELIVERY",
           "updatedBy": "Vikram Sharma"
         }
       ],
@@ -425,6 +454,49 @@
       },
       "internalNotes": "",
       "notificationsSent.intakeEmail": true
+    },
+    {
+      "_id": "id_e56061mqv_1789800618714",
+      "createdAt": "2026-09-19T06:50:18.714Z",
+      "updatedAt": "2026-09-19T06:50:24.908Z",
+      "ticketId": "REP-1009",
+      "customer": {
+        "name": "Pooja Hegde",
+        "phone": "+91 97711 22334",
+        "email": "pooja@example.com",
+        "address": ""
+      },
+      "device": {
+        "type": "MOBILE",
+        "brand": "OnePlus",
+        "model": "11R 5G",
+        "serialNumber": "1P-11R-8821",
+        "accessoriesReceived": [],
+        "passcode": ""
+      },
+      "issueDescription": "Battery draining fast and charging port loose",
+      "status": "RECEIVED",
+      "statusHistory": [
+        {
+          "status": "RECEIVED",
+          "timestamp": "2026-09-19T06:50:18.714Z",
+          "note": "Device intake completed. Initial assessment pending.",
+          "updatedBy": "Vikram Sharma"
+        }
+      ],
+      "technician": "Senior Tech",
+      "estimatedDeliveryDate": "2026-09-21T06:50:18.714Z",
+      "estimatedCost": 2200,
+      "laborCost": 400,
+      "finalCost": 2200,
+      "paymentStatus": "UNPAID",
+      "notificationsSent": {
+        "intakeWhatsApp": false,
+        "intakeEmail": true,
+        "readyWhatsApp": false,
+        "readyEmail": false
+      },
+      "internalNotes": ""
     }
   ],
   "inventory": [
@@ -874,6 +946,72 @@
       "status": "SENT",
       "meta": {
         "waUrl": "https://wa.me/917848962669?text=%E2%9C%85%20*GOOD%20NEWS!%20Your%20Device%20is%20Ready%20for%20Delivery*%0A%0AHello%20*Abhijeet%20Gupta*%2C%0AYour%20*asus%20vivobook%2016x*%20(Ticket%20*%23REP-1007*)%20has%20been%20successfully%20repaired%2C%20inspected%2C%20and%20passed%20all%20quality%20tests.%0A%0A%F0%9F%92%B0%20*Billing%20Summary%3A*%0A%E2%80%A2%20*Total%20Payable%3A*%20%E2%82%B90%0A%E2%80%A2%20*Payment%20Status%3A*%20UNPAID%0A%0A%F0%9F%93%8D%20*Pickup%20Location%3A*%0ATechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%E2%8F%B0%20*Working%20Hours%3A*%2010%3A00%20AM%20%E2%80%93%208%3A30%20PM%20(Mon%20-%20Sat)%0A%F0%9F%93%9E%20*Support%3A*%20%2B91%2098765%2043210%0A%0AYou%20can%20view%20your%20detailed%20itemized%20invoice%20and%20tracking%20history%20here%3A%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1007%0A%0APlease%20bring%20your%20Ticket%20ID%20%23REP-1007%20at%20the%20time%20of%20pickup!%0A*TechFix%20Pro%20Care*"
+      }
+    },
+    {
+      "_id": "id_ntxzp1fw8_1789800624902",
+      "createdAt": "2026-09-19T06:50:24.902Z",
+      "updatedAt": "2026-09-19T06:50:24.902Z",
+      "ticketId": "REP-1009",
+      "recipientName": "Pooja Hegde",
+      "recipientContact": "pooja@example.com",
+      "channel": "EMAIL",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "🛠️ Repair Received: #REP-1009 - OnePlus 11R 5G (Apex Tech & Mobile Solutions)",
+      "messageBody": "Sent to pooja@example.com: 🛠️ Repair Received: #REP-1009 - OnePlus 11R 5G (Apex Tech & Mobile Solutions)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<9e2a20ca-5382-9e56-a1b9-b3355f35ff59@apextechcare.com>",
+        "previewUrl": "https://ethereal.email/message/aq4wreK0mpYcZEgZaq4wsl31x4oQTrIrAAAAAZ4AoKmGSNiOiFrG6jw47oU"
+      }
+    },
+    {
+      "_id": "id_8lpub7nce_1789800624909",
+      "createdAt": "2026-09-19T06:50:24.909Z",
+      "updatedAt": "2026-09-19T06:50:24.909Z",
+      "ticketId": "REP-1009",
+      "recipientName": "Pooja Hegde",
+      "recipientContact": "+91 97711 22334",
+      "channel": "WHATSAPP",
+      "triggerType": "INTAKE_CONFIRMATION",
+      "subject": "WhatsApp Notification: INTAKE_CONFIRMATION",
+      "messageBody": "🛠️ *PC Island - Repair Intake Confirmation*\n\nHello *Pooja Hegde*,\nWe have successfully received your device for service.\n\n📋 *Repair Ticket Details:*\n• *Ticket ID:* #REP-1009\n• *Device:* OnePlus 11R 5G (MOBILE)\n• *Reported Issue:* Battery draining fast and charging port loose\n• *Est. Delivery:* 9/21/2026\n\n🔍 *Track Live Status Anytime:*\nhttp://localhost:5173/track/REP-1009\n\n📍 *Store Address:* TechFix Hub, Ground Floor, Electronics Market, Main Road\n📞 *Helpline / WhatsApp:* +91 98765 43210\n\nThank you for choosing *PC Island*!",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/919771122334?text=%F0%9F%9B%A0%EF%B8%8F%20*PC%20Island%20-%20Repair%20Intake%20Confirmation*%0A%0AHello%20*Pooja%20Hegde*%2C%0AWe%20have%20successfully%20received%20your%20device%20for%20service.%0A%0A%F0%9F%93%8B%20*Repair%20Ticket%20Details%3A*%0A%E2%80%A2%20*Ticket%20ID%3A*%20%23REP-1009%0A%E2%80%A2%20*Device%3A*%20OnePlus%2011R%205G%20(MOBILE)%0A%E2%80%A2%20*Reported%20Issue%3A*%20Battery%20draining%20fast%20and%20charging%20port%20loose%0A%E2%80%A2%20*Est.%20Delivery%3A*%209%2F21%2F2026%0A%0A%F0%9F%94%8D%20*Track%20Live%20Status%20Anytime%3A*%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1009%0A%0A%F0%9F%93%8D%20*Store%20Address%3A*%20TechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%F0%9F%93%9E%20*Helpline%20%2F%20WhatsApp%3A*%20%2B91%2098765%2043210%0A%0AThank%20you%20for%20choosing%20*PC%20Island*!"
+      }
+    },
+    {
+      "_id": "id_75qgo2yr1_1789801267455",
+      "createdAt": "2026-09-19T07:01:07.455Z",
+      "updatedAt": "2026-09-19T07:01:07.455Z",
+      "ticketId": "REP-1008",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "guptaabhijeet396@gmail.com",
+      "channel": "EMAIL",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "🎉 READY FOR DELIVERY: #REP-1008 - asus vivobook 16x (Gupta Variety Store)",
+      "messageBody": "Sent to guptaabhijeet396@gmail.com: 🎉 READY FOR DELIVERY: #REP-1008 - asus vivobook 16x (Gupta Variety Store)",
+      "status": "SENT",
+      "meta": {
+        "messageId": "<9fde22ad-d8ac-f886-99ef-d2709571ce03@gmail.com>",
+        "previewUrl": "https://ethereal.email/message/aq4wreK0mpYcZEgZaq4zNJW6vNXKj4RRAAAAAul-Db3Nf9FdrYbLue3DDQA"
+      }
+    },
+    {
+      "_id": "id_90tzohj5f_1789801267462",
+      "createdAt": "2026-09-19T07:01:07.462Z",
+      "updatedAt": "2026-09-19T07:01:07.462Z",
+      "ticketId": "REP-1008",
+      "recipientName": "Abhijeet Gupta",
+      "recipientContact": "7848962669",
+      "channel": "WHATSAPP",
+      "triggerType": "READY_FOR_DELIVERY",
+      "subject": "WhatsApp Notification: READY_FOR_DELIVERY",
+      "messageBody": "✅ *GOOD NEWS! Your Device is Ready for Delivery*\n\nHello *Abhijeet Gupta*,\nYour *asus vivobook 16x* (Ticket *#REP-1008*) has been successfully repaired, inspected, and passed all quality tests.\n\n💰 *Billing Summary:*\n• *Total Payable:* ₹0\n• *Payment Status:* UNPAID\n• *Shop UPI ID:* apexrepair@upi\n\n📍 *Pickup Location:*\nTechFix Hub, Ground Floor, Electronics Market, Main Road\n⏰ *Working Hours:* 10:00 AM – 8:30 PM (Mon - Sat)\n📞 *Support:* +91 98765 43210\n\nYou can view your detailed itemized invoice and tracking history here:\nhttp://localhost:5173/track/REP-1008\n\nPlease bring Ticket ID #REP-1008 at the time of pickup!\n*PC Island*",
+      "status": "SENT",
+      "meta": {
+        "waUrl": "https://wa.me/917848962669?text=%E2%9C%85%20*GOOD%20NEWS!%20Your%20Device%20is%20Ready%20for%20Delivery*%0A%0AHello%20*Abhijeet%20Gupta*%2C%0AYour%20*asus%20vivobook%2016x*%20(Ticket%20*%23REP-1008*)%20has%20been%20successfully%20repaired%2C%20inspected%2C%20and%20passed%20all%20quality%20tests.%0A%0A%F0%9F%92%B0%20*Billing%20Summary%3A*%0A%E2%80%A2%20*Total%20Payable%3A*%20%E2%82%B90%0A%E2%80%A2%20*Payment%20Status%3A*%20UNPAID%0A%E2%80%A2%20*Shop%20UPI%20ID%3A*%20apexrepair%40upi%0A%0A%F0%9F%93%8D%20*Pickup%20Location%3A*%0ATechFix%20Hub%2C%20Ground%20Floor%2C%20Electronics%20Market%2C%20Main%20Road%0A%E2%8F%B0%20*Working%20Hours%3A*%2010%3A00%20AM%20%E2%80%93%208%3A30%20PM%20(Mon%20-%20Sat)%0A%F0%9F%93%9E%20*Support%3A*%20%2B91%2098765%2043210%0A%0AYou%20can%20view%20your%20detailed%20itemized%20invoice%20and%20tracking%20history%20here%3A%0Ahttp%3A%2F%2Flocalhost%3A5173%2Ftrack%2FREP-1008%0A%0APlease%20bring%20Ticket%20ID%20%23REP-1008%20at%20the%20time%20of%20pickup!%0A*PC%20Island*"
       }
     }
   ]

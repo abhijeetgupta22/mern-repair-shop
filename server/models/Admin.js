@@ -5,21 +5,23 @@ const adminSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, required: true },
-  shopName: { type: String, default: 'Pro Tech Repair Hub' },
+  shopName: { type: String, default: 'Apex Laptop & Mobile Repair Hub' },
   phone: { type: String, default: '+91 98765 43210' },
-  address: { type: String, default: 'Shop 104, Tech Plaza, Station Road' },
-  upiId: { type: String, default: 'techfix@upi' },
+  address: { type: String, default: 'Shop 104, Tech Arcade, Electronics Market' },
+  shopEmail: { type: String, default: 'apexrepaircare@gmail.com' },
+  upiId: { type: String, default: 'apexrepair@upi' },
+  isConfigured: { type: Boolean, default: false },
   subscription: {
-    plan: { type: String, enum: ['FREE_TRIAL', 'STARTER', 'PRO', 'ENTERPRISE'], default: 'PRO' },
-    status: { type: String, enum: ['ACTIVE', 'TRIAL', 'EXPIRED', 'PAST_DUE'], default: 'ACTIVE' },
+    plan: { type: String, enum: ['FREE_TRIAL', '1_MONTH', '3_MONTHS'], default: 'FREE_TRIAL' },
+    status: { type: String, enum: ['ACTIVE', 'TRIAL', 'EXPIRED'], default: 'TRIAL' },
     startDate: { type: Date, default: Date.now },
     expiresAt: {
       type: Date,
-      default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days active
+      default: () => new Date(Date.now() + 28 * 24 * 60 * 60 * 1000) // 28-day free trial
     },
-    price: { type: Number, default: 49 },
-    billingCycle: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
-    ticketLimit: { type: Number, default: 500 }
+    price: { type: Number, default: 0 },
+    billingCycle: { type: String, enum: ['trial', 'monthly', 'quarterly'], default: 'trial' },
+    ticketLimit: { type: Number, default: 99999 }
   }
 }, { timestamps: true });
 

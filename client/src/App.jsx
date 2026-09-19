@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import SubscriptionBanner from './components/SubscriptionBanner';
 import PaywallModal from './components/PaywallModal';
+import ShopSetupModal from './components/ShopSetupModal';
 
 import PublicHome from './pages/PublicHome';
 import PublicTrack from './pages/PublicTrack';
@@ -35,9 +36,17 @@ function getInitialPage() {
 }
 
 function MainApp() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, admin } = useAuth();
   const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [pageParams, setPageParams] = useState({});
+  const [showShopSetup, setShowShopSetup] = useState(false);
+
+  // Auto prompt shop setup when admin opens the website right after login if not yet configured
+  useEffect(() => {
+    if (isAuthenticated && admin && admin.isConfigured === false) {
+      setShowShopSetup(true);
+    }
+  }, [isAuthenticated, admin?.isConfigured]);
 
   const handleNavigate = (page, params = {}) => {
     setCurrentPage(page);
@@ -77,7 +86,11 @@ function MainApp() {
       <div className="flex-1 flex">
         {/* Admin Sidebar if inside protected admin workspace */}
         {isAdminSection && isAuthenticated && (
-          <Sidebar currentPage={currentPage} onNavigate={handleNavigate} />
+          <Sidebar
+            currentPage={currentPage}
+            onNavigate={handleNavigate}
+            onOpenShopProfile={() => setShowShopSetup(true)}
+          />
         )}
 
         <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${isAdminSection && isAuthenticated ? 'max-w-7xl mx-auto' : 'w-full'}`}>
@@ -118,6 +131,13 @@ function MainApp() {
 
       {/* Paywall Modal */}
       <PaywallModal />
+
+      {/* Shop Profile & Setup Modal (Global Admin Access) */}
+      <ShopSetupModal
+        isOpen={showShopSetup}
+        onClose={() => setShowShopSetup(false)}
+        isFirstTime={admin && admin.isConfigured === false}
+      />
 
       {/* Footer */}
       <footer className="no-print border-t border-slate-200 dark:border-slate-800 py-8 bg-white dark:bg-slate-900 text-xs text-slate-500 dark:text-slate-400">

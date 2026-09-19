@@ -6,54 +6,56 @@ const router = express.Router();
 
 export const SUBSCRIPTION_PLANS = [
   {
-    id: 'STARTER',
-    name: 'Starter Shop',
-    priceINR: 999,
-    priceUSD: 19,
-    billingCycle: 'monthly',
-    ticketLimit: 150,
+    id: 'FREE_TRIAL',
+    name: '28-Day Free Trial',
+    priceINR: 0,
+    durationDays: 28,
+    billingCycle: 'trial',
+    ticketLimit: 99999,
     features: [
-      'Up to 150 Repair Tickets / month',
-      'Inventory Stock Management (+ / -)',
-      'Basic Billing & Invoice Printing',
-      'Customer Live Status Tracking',
-      'Standard Dark / Light Mode'
+      '28 Days 100% Free Full Access',
+      'Unlimited Repair Tickets',
+      'Inventory (+ / -) Stock Control',
+      'Tax & GST Invoicing with Shop Branding',
+      'WhatsApp & Email Customer Alerts',
+      'Customer Live Tracking Portal'
     ],
     recommended: false
   },
   {
-    id: 'PRO',
-    name: 'Pro Repair Pro',
-    priceINR: 1999,
-    priceUSD: 39,
-    billingCycle: 'monthly',
-    ticketLimit: 1000,
-    features: [
-      'Unlimited Repair Tickets',
-      'Automated WhatsApp Intake & Delivery Alerts',
-      'Automated Email Notification System',
-      'Full Inventory with Low Stock Warnings',
-      'Tax & GST Invoicing with Shop Branding',
-      'Priority Support & Cloud Backup'
-    ],
-    recommended: true
-  },
-  {
-    id: 'ENTERPRISE',
-    name: 'Enterprise Multi-Store',
-    priceINR: 3999,
-    priceUSD: 79,
+    id: '1_MONTH',
+    name: '1 Month Renewal Plan',
+    priceINR: 599,
+    durationDays: 30,
     billingCycle: 'monthly',
     ticketLimit: 99999,
     features: [
-      'All Pro Features Included',
-      'Multiple Branch Locations',
-      'Dedicated WhatsApp Business API Gateway',
-      'Custom Domain Support',
-      'Staff Role Management & Commission Tracking',
-      '24/7 Dedicated Account Manager'
+      'Full Shop Management for 30 Days',
+      'Unlimited Repair Tickets',
+      'Direct Inventory (+ / -) Stock Adjustment',
+      'Custom Parts & Labor Billing + Print',
+      'Automated WhatsApp Intake & Delivery Alerts',
+      'Automated Email Confirmation System'
     ],
     recommended: false
+  },
+  {
+    id: '3_MONTHS',
+    name: '3 Months Value Plan',
+    priceINR: 1699,
+    durationDays: 90,
+    billingCycle: 'quarterly',
+    ticketLimit: 99999,
+    badge: 'Best Value • Save ₹98',
+    features: [
+      'Full Shop Management for 90 Days',
+      'Includes Everything in 1 Month Plan',
+      'Discounted Quarterly Pricing (₹566/mo)',
+      'Priority Support & Data Backup',
+      'Custom UPI QR Code on Invoices',
+      'Free Theme Customization (Dark / Light)'
+    ],
+    recommended: true
   }
 ];
 
@@ -67,9 +69,9 @@ router.get('/status', protectAdmin, async (req, res) => {
   try {
     const admin = req.admin;
     const sub = admin.subscription || {
-      plan: 'PRO',
-      status: 'ACTIVE',
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      plan: 'FREE_TRIAL',
+      status: 'TRIAL',
+      expiresAt: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000)
     };
 
     const now = new Date();
@@ -95,12 +97,15 @@ router.get('/status', protectAdmin, async (req, res) => {
 // POST /api/subscriptions/upgrade - Simulate or process payment to activate/renew plan
 router.post('/upgrade', protectAdmin, async (req, res) => {
   try {
-    const { planId, paymentMethod = 'SIMULATED_UPI', billingCycle = 'monthly' } = req.body;
+    const { planId } = req.body;
     const adminId = req.admin._id || req.admin.id;
 
-    const selectedPlan = SUBSCRIPTION_PLANS.find(p => p.id === planId) || SUBSCRIPTION_PLANS[1];
+    let selectedPlan = SUBSCRIPTION_PLANS.find(p => p.id === planId);
+    if (!selectedPlan) {
+      selectedPlan = SUBSCRIPTION_PLANS.find(p => p.id === '1_MONTH');
+    }
 
-    const durationDays = billingCycle === 'yearly' ? 365 : 30;
+    const durationDays = selectedPlan.durationDays || 30;
     const expiresAt = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
 
     const updatedSubscription = {
@@ -109,7 +114,7 @@ router.post('/upgrade', protectAdmin, async (req, res) => {
       startDate: new Date(),
       expiresAt,
       price: selectedPlan.priceINR,
-      billingCycle,
+      billingCycle: selectedPlan.billingCycle,
       ticketLimit: selectedPlan.ticketLimit
     };
 
@@ -124,7 +129,7 @@ router.post('/upgrade', protectAdmin, async (req, res) => {
 
     res.json({
       success: true,
-      message: `Subscription successfully upgraded to ${selectedPlan.name}!`,
+      message: `Subscription successfully renewed with ${selectedPlan.name}! Valid for ${durationDays} days.`,
       transactionId: 'TXN_' + Math.random().toString(36).substr(2, 9).toUpperCase(),
       subscription: updatedSubscription,
       admin: safeAdmin
@@ -144,7 +149,7 @@ router.post('/simulate-toggle', protectAdmin, async (req, res) => {
     const newStatus = status === 'EXPIRED' ? 'EXPIRED' : 'ACTIVE';
     const expiresAt = newStatus === 'EXPIRED' 
       ? new Date(Date.now() - 24 * 60 * 60 * 1000) // Yesterday
-      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days ahead
+      : new Date(Date.now() + 28 * 24 * 60 * 60 * 1000); // 28 days ahead
 
     const updatedAdmin = await Admin.findByIdAndUpdate(
       adminId,

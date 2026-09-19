@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { NotificationLog } from '../models/NotificationLog.js';
+import { Admin } from '../models/Admin.js';
 
 let transporter = null;
 
@@ -17,7 +18,6 @@ async function getTransporter() {
       }
     });
   } else {
-    // In dev / demo mode: create an ethereal test account automatically
     try {
       const testAccount = await nodemailer.createTestAccount();
       transporter = nodemailer.createTransport({
@@ -31,7 +31,6 @@ async function getTransporter() {
       });
       console.log(`[Email] Ethereal test mailer initialized (${testAccount.user})`);
     } catch (err) {
-      // Stream fallback
       transporter = nodemailer.createTransport({
         jsonTransport: true
       });
@@ -41,21 +40,39 @@ async function getTransporter() {
   return transporter;
 }
 
+async function getShopInfo() {
+  try {
+    const admins = await Admin.find();
+    if (admins && admins.length > 0) {
+      const a = admins[0];
+      return {
+        shopName: a.shopName || process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub',
+        shopPhone: a.phone || process.env.SHOP_PHONE || '+91 98765 43210',
+        shopAddress: a.address || process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market',
+        shopEmail: a.shopEmail || 'apexrepaircare@gmail.com'
+      };
+    }
+  } catch (e) {}
+  return {
+    shopName: process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub',
+    shopPhone: process.env.SHOP_PHONE || '+91 98765 43210',
+    shopAddress: process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market',
+    shopEmail: 'apexrepaircare@gmail.com'
+  };
+}
+
 export const emailService = {
   async sendIntakeEmail({ ticketId, customerName, customerEmail, device, issue, estimatedDeliveryDate, trackingUrl }) {
     if (!customerEmail) return { success: false, reason: 'No customer email provided' };
 
-    const shopName = process.env.SHOP_NAME || 'TechFix Pro Care';
-    const shopPhone = process.env.SHOP_PHONE || '+91 98765 43210';
-    const shopAddress = process.env.SHOP_ADDRESS || 'TechFix Hub, Electronics Market';
-
-    const subject = `🛠️ Repair Received: #${ticketId} - ${device.brand} ${device.model} (${shopName})`;
+    const shop = await getShopInfo();
+    const subject = `🛠️ Repair Received: #${ticketId} - ${device.brand} ${device.model} (${shop.shopName})`;
 
     const html = `
       <div style="font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 24px; color: #1f2937;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
           <div style="background: linear-gradient(135deg, #2563eb, #1d4ed8); padding: 28px; text-align: center; color: white;">
-            <h1 style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: -0.5px;">${shopName}</h1>
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; letter-spacing: -0.5px;">${shop.shopName}</h1>
             <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px;">Laptop, Desktop & Mobile Repair Specialists</p>
           </div>
 
@@ -66,7 +83,7 @@ export const emailService = {
 
             <h2 style="font-size: 18px; color: #111827; margin-top: 0;">Hello ${customerName},</h2>
             <p style="color: #4b5563; font-size: 14px; line-height: 1.5;">
-              We have received your device for repair and inspection. Our certified technician will examine it shortly.
+              We have received your device for repair and inspection at <strong>${shop.shopName}</strong>. Our certified technician will examine it shortly.
             </p>
 
             <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #f9fafb; border-radius: 8px; overflow: hidden; font-size: 14px;">
@@ -96,8 +113,8 @@ export const emailService = {
           </div>
 
           <div style="background-color: #f9fafb; border-top: 1px solid #e5e7eb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-            <p style="margin: 0 0 4px 0;">📍 ${shopAddress}</p>
-            <p style="margin: 0;">📞 Helpline: ${shopPhone} | Keep this email for warranty reference.</p>
+            <p style="margin: 0 0 4px 0;">📍 ${shop.shopAddress}</p>
+            <p style="margin: 0;">📞 Helpline: ${shop.shopPhone} | 📧 Email: ${shop.shopEmail}</p>
           </div>
         </div>
       </div>
@@ -109,25 +126,24 @@ export const emailService = {
       customerContact: customerEmail,
       triggerType: 'INTAKE_CONFIRMATION',
       subject,
-      html
+      html,
+      fromEmail: shop.shopEmail,
+      shopName: shop.shopName
     });
   },
 
   async sendReadyForDeliveryEmail({ ticketId, customerName, customerEmail, device, finalCost, paymentStatus, trackingUrl }) {
     if (!customerEmail) return { success: false, reason: 'No customer email provided' };
 
-    const shopName = process.env.SHOP_NAME || 'TechFix Pro Care';
-    const shopPhone = process.env.SHOP_PHONE || '+91 98765 43210';
-    const shopAddress = process.env.SHOP_ADDRESS || 'TechFix Hub, Electronics Market';
-
-    const subject = `🎉 READY FOR DELIVERY: #${ticketId} - ${device.brand} ${device.model} (${shopName})`;
+    const shop = await getShopInfo();
+    const subject = `🎉 READY FOR DELIVERY: #${ticketId} - ${device.brand} ${device.model} (${shop.shopName})`;
 
     const html = `
       <div style="font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 24px; color: #1f2937;">
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
           <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 28px; text-align: center; color: white;">
             <h1 style="margin: 0; font-size: 24px; font-weight: bold;">Device Ready for Pickup!</h1>
-            <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px;">${shopName} • Quality Checked & Certified</p>
+            <p style="margin: 6px 0 0 0; opacity: 0.9; font-size: 14px;">${shop.shopName} • Quality Checked & Certified</p>
           </div>
 
           <div style="padding: 28px;">
@@ -137,7 +153,7 @@ export const emailService = {
 
             <h2 style="font-size: 18px; color: #111827; margin-top: 0;">Dear ${customerName},</h2>
             <p style="color: #4b5563; font-size: 14px; line-height: 1.5;">
-              We are pleased to inform you that your <strong>${device.brand} ${device.model}</strong> has been completely repaired, thoroughly tested, and is ready for pickup or delivery!
+              We are pleased to inform you that your <strong>${device.brand} ${device.model}</strong> has been completely repaired, thoroughly tested, and is ready for pickup at <strong>${shop.shopName}</strong>!
             </p>
 
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 18px; margin: 20px 0;">
@@ -159,15 +175,16 @@ export const emailService = {
 
             <div style="background-color: #f8fafc; border-radius: 8px; padding: 16px; font-size: 13px; color: #475569;">
               <strong style="color: #0f172a;">Store Hours & Pickup Address:</strong><br/>
-              📍 ${shopAddress}<br/>
+              📍 ${shop.shopAddress}<br/>
               ⏰ 10:00 AM - 8:30 PM (Monday - Saturday)<br/>
+              📞 ${shop.shopPhone} | 📧 ${shop.shopEmail}<br/>
               <em>Please show this email or Ticket #${ticketId} at the counter.</em>
             </div>
           </div>
 
           <div style="background-color: #f9fafb; border-top: 1px solid #e5e7eb; padding: 20px; text-align: center; font-size: 12px; color: #6b7280;">
-            <p style="margin: 0 0 4px 0;">Questions? Call support at ${shopPhone}</p>
-            <p style="margin: 0;">${shopName} • Thank you for your business!</p>
+            <p style="margin: 0 0 4px 0;">Questions? Call support at ${shop.shopPhone}</p>
+            <p style="margin: 0;">${shop.shopName} • Thank you for your business!</p>
           </div>
         </div>
       </div>
@@ -179,15 +196,17 @@ export const emailService = {
       customerContact: customerEmail,
       triggerType: 'READY_FOR_DELIVERY',
       subject,
-      html
+      html,
+      fromEmail: shop.shopEmail,
+      shopName: shop.shopName
     });
   },
 
-  async dispatchMail({ ticketId, customerName, customerContact, triggerType, subject, html }) {
+  async dispatchMail({ ticketId, customerName, customerContact, triggerType, subject, html, fromEmail, shopName }) {
     try {
       const mailer = await getTransporter();
       const mailOptions = {
-        from: process.env.EMAIL_FROM || '"TechFix Support" <notifications@techfix.com>',
+        from: `"${shopName || 'TechFix Pro Support'}" <${fromEmail || process.env.EMAIL_FROM || 'notifications@techfix.com'}>`,
         to: customerContact,
         subject,
         html

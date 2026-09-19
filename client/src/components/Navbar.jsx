@@ -47,7 +47,7 @@ export default function Navbar({ onNavigate, currentPage }) {
             </div>
             <div>
               <div className="flex items-center gap-1.5 font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                <span>TechFix</span>
+                <span>{admin?.shopName || 'TechFix'}</span>
                 <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 uppercase tracking-widest font-extrabold">PRO</span>
               </div>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-1 font-medium hidden sm:block">

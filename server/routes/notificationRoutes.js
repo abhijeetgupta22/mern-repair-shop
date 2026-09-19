@@ -38,6 +38,7 @@ router.post('/whatsapp/preview', protectAdmin, async (req, res) => {
     }
 
     const trackingUrl = `${process.env.CLIENT_URL || 'http://localhost:5173'}/track/${ticket.ticketId}`;
+    const shop = await whatsappService.getShopDetails();
     let message = '';
 
     if (triggerType === 'INTAKE_CONFIRMATION') {
@@ -47,7 +48,8 @@ router.post('/whatsapp/preview', protectAdmin, async (req, res) => {
         device: ticket.device,
         issue: ticket.issueDescription,
         estimatedDeliveryDate: ticket.estimatedDeliveryDate,
-        trackingUrl
+        trackingUrl,
+        shop
       });
     } else {
       // READY_FOR_DELIVERY or generic
@@ -57,7 +59,8 @@ router.post('/whatsapp/preview', protectAdmin, async (req, res) => {
         device: ticket.device,
         finalCost: ticket.finalCost || ticket.estimatedCost,
         paymentStatus: ticket.paymentStatus,
-        trackingUrl
+        trackingUrl,
+        shop
       });
     }
 

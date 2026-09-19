@@ -1,21 +1,45 @@
 import { NotificationLog } from '../models/NotificationLog.js';
+import { Admin } from '../models/Admin.js';
 
 export const whatsappService = {
   formatPhoneNumber(phone) {
     if (!phone) return '';
-    // Strip non-digits
     const clean = phone.replace(/\D/g, '');
-    // If 10 digits (common in India / US without country code), default to country code or keep clean
     if (clean.length === 10) {
-      return `91${clean}`; // Default to +91 or standard 10 digit
+      return `91${clean}`;
     }
     return clean;
   },
 
-  generateIntakeMessage({ ticketId, customerName, device, issue, estimatedDeliveryDate, trackingUrl }) {
-    const shopName = process.env.SHOP_NAME || 'TechFix Pro Care';
-    const shopPhone = process.env.SHOP_PHONE || '+91 98765 43210';
-    const shopAddress = process.env.SHOP_ADDRESS || 'TechFix Hub, Electronics Market';
+  async getShopDetails() {
+    try {
+      const admins = await Admin.find();
+      if (admins && admins.length > 0) {
+        const a = admins[0];
+        return {
+          shopName: a.shopName || process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub',
+          shopPhone: a.phone || process.env.SHOP_PHONE || '+91 98765 43210',
+          shopAddress: a.address || process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market',
+          shopEmail: a.shopEmail || 'apexrepaircare@gmail.com',
+          upiId: a.upiId || 'apexrepair@upi'
+        };
+      }
+    } catch (e) {
+      // fallback
+    }
+    return {
+      shopName: process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub',
+      shopPhone: process.env.SHOP_PHONE || '+91 98765 43210',
+      shopAddress: process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market',
+      shopEmail: 'apexrepaircare@gmail.com',
+      upiId: 'apexrepair@upi'
+    };
+  },
+
+  generateIntakeMessage({ ticketId, customerName, device, issue, estimatedDeliveryDate, trackingUrl, shop = {} }) {
+    const shopName = shop.shopName || process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub';
+    const shopPhone = shop.shopPhone || process.env.SHOP_PHONE || '+91 98765 43210';
+    const shopAddress = shop.shopAddress || process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market';
 
     return `🛠️ *${shopName} - Repair Intake Confirmation*
 
@@ -32,15 +56,16 @@ ${estimatedDeliveryDate ? `• *Est. Delivery:* ${new Date(estimatedDeliveryDate
 ${trackingUrl}
 
 📍 *Store Address:* ${shopAddress}
-📞 *Helpline:* ${shopPhone}
+📞 *Helpline / WhatsApp:* ${shopPhone}
 
-Thank you for trusting *${shopName}*!`;
+Thank you for choosing *${shopName}*!`;
   },
 
-  generateReadyForDeliveryMessage({ ticketId, customerName, device, finalCost, paymentStatus, trackingUrl }) {
-    const shopName = process.env.SHOP_NAME || 'TechFix Pro Care';
-    const shopPhone = process.env.SHOP_PHONE || '+91 98765 43210';
-    const shopAddress = process.env.SHOP_ADDRESS || 'TechFix Hub, Electronics Market';
+  generateReadyForDeliveryMessage({ ticketId, customerName, device, finalCost, paymentStatus, trackingUrl, shop = {} }) {
+    const shopName = shop.shopName || process.env.SHOP_NAME || 'Apex Laptop & Mobile Repair Hub';
+    const shopPhone = shop.shopPhone || process.env.SHOP_PHONE || '+91 98765 43210';
+    const shopAddress = shop.shopAddress || process.env.SHOP_ADDRESS || 'Tech Arcade, Electronics Market';
+    const upiId = shop.upiId || 'apexrepair@upi';
 
     return `✅ *GOOD NEWS! Your Device is Ready for Delivery*
 
@@ -50,6 +75,7 @@ Your *${device.brand} ${device.model}* (Ticket *#${ticketId}*) has been successf
 💰 *Billing Summary:*
 • *Total Payable:* ₹${finalCost || 0}
 • *Payment Status:* ${paymentStatus || 'UNPAID'}
+• *Shop UPI ID:* ${upiId}
 
 📍 *Pickup Location:*
 ${shopAddress}
@@ -59,7 +85,7 @@ ${shopAddress}
 You can view your detailed itemized invoice and tracking history here:
 ${trackingUrl}
 
-Please bring your Ticket ID #${ticketId} at the time of pickup!
+Please bring Ticket ID #${ticketId} at the time of pickup!
 *${shopName}*`;
   },
 
