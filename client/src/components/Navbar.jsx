@@ -7,15 +7,18 @@ import {
   ArrowRight,
   Menu,
   X,
-  LogOut
+  LogOut,
+  QrCode
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
+import ShareModal from './ShareModal';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar({ onNavigate, currentPage }) {
   const { isAuthenticated, admin, logout } = useAuth();
   const [quickTrackQuery, setQuickTrackQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const handleTrackSubmit = (e) => {
     e.preventDefault();
@@ -109,6 +112,16 @@ export default function Navbar({ onNavigate, currentPage }) {
 
             <ThemeToggle />
 
+            {/* Share QR Code Button */}
+            <button
+              onClick={() => setShareOpen(true)}
+              title="Share / Scan Website QR Code"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-blue-400 dark:hover:border-blue-500 transition shadow-sm"
+            >
+              <QrCode className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="hidden sm:inline">Share QR</span>
+            </button>
+
             {/* Admin Authentication Link / Suite Button */}
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
@@ -185,6 +198,13 @@ export default function Navbar({ onNavigate, currentPage }) {
               >
                 Live Tracker
               </a>
+              <button
+                onClick={() => { setShareOpen(true); setMobileMenuOpen(false); }}
+                className="flex items-center gap-2 text-left px-3 py-2 text-sm font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400"
+              >
+                <QrCode className="w-4 h-4" />
+                <span>Share / Scan Website QR</span>
+              </button>
               {isAuthenticated ? (
                 <div className="space-y-2">
                   <a
@@ -216,6 +236,9 @@ export default function Navbar({ onNavigate, currentPage }) {
             </div>
           </div>
         )}
+
+        {/* Share QR Modal */}
+        <ShareModal isOpen={shareOpen} onClose={() => setShareOpen(false)} />
       </div>
     </header>
   );
