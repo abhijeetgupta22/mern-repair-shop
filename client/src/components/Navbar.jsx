@@ -49,11 +49,11 @@ export default function Navbar({ onNavigate, currentPage }) {
               <Wrench className="w-5 h-5 transform group-hover:rotate-45 transition-transform duration-300" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 font-bold text-lg tracking-tight text-slate-900 dark:text-white">
-                <span>{admin?.shopName || 'TechFix'}</span>
-                <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 uppercase tracking-widest font-extrabold">PRO</span>
+              <div className="flex items-center gap-1.5 font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white">
+                <span className="truncate max-w-[130px] sm:max-w-[240px] md:max-w-none">{admin?.shopName || 'TechFix'}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 uppercase tracking-widest font-extrabold flex-shrink-0">PRO</span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-1 font-medium hidden sm:block">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 -mt-0.5 font-medium hidden sm:block">
                 Laptop • Desktop • Mobile Care
               </p>
             </div>
@@ -183,7 +183,61 @@ export default function Navbar({ onNavigate, currentPage }) {
               />
             </form>
 
-            <div className="flex flex-col gap-2 pt-2">
+            <div className="flex flex-col gap-1.5 pt-2">
+              {isAuthenticated ? (
+                <>
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 pt-1">
+                    Admin Workspace
+                  </div>
+                  <a
+                    href="#admin-dashboard"
+                    onClick={(e) => handleNavClick('admin-dashboard', e)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    <span>📊</span>
+                    <span>Dashboard & Graphs</span>
+                  </a>
+                  <a
+                    href="#admin-tickets"
+                    onClick={(e) => handleNavClick('admin-tickets', e)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    <span>🔧</span>
+                    <span>Repair Tickets</span>
+                  </a>
+                  <a
+                    href="#admin-inventory"
+                    onClick={(e) => handleNavClick('admin-inventory', e)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    <span>📦</span>
+                    <span>Inventory (+ / -)</span>
+                  </a>
+                  <a
+                    href="#admin-billing"
+                    onClick={(e) => handleNavClick('admin-billing', e)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    <span>🧾</span>
+                    <span>Billing & Invoices</span>
+                  </a>
+                  <a
+                    href="#admin-subscription"
+                    onClick={(e) => handleNavClick('admin-subscription', e)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200"
+                  >
+                    <span>💳</span>
+                    <span>Subscription Plan</span>
+                  </a>
+
+                  <div className="h-px bg-slate-200 dark:bg-slate-800 my-1" />
+
+                  <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 pt-1">
+                    Public Views
+                  </div>
+                </>
+              ) : null}
+
               <a
                 href="#home"
                 onClick={(e) => handleNavClick('home', e)}
@@ -205,29 +259,20 @@ export default function Navbar({ onNavigate, currentPage }) {
                 <QrCode className="w-4 h-4" />
                 <span>Share / Scan Website QR</span>
               </button>
+
               {isAuthenticated ? (
-                <div className="space-y-2">
-                  <a
-                    href="#admin-dashboard"
-                    onClick={(e) => handleNavClick('admin-dashboard', e)}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-medium"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Admin Dashboard</span>
-                  </a>
-                  <button
-                    onClick={() => { logout(); setMobileMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-rose-600 text-sm font-medium"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
+                <button
+                  onClick={() => { logout(); setMobileMenuOpen(false); }}
+                  className="flex items-center justify-center gap-2 w-full mt-2 px-4 py-2.5 rounded-xl border border-rose-200 dark:border-rose-800/80 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-sm font-bold"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </button>
               ) : (
                 <a
                   href="#admin-login"
                   onClick={(e) => handleNavClick('admin-login', e)}
-                  className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-medium bg-slate-50 dark:bg-slate-800"
+                  className="flex items-center justify-center gap-2 w-full mt-2 px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold bg-slate-50 dark:bg-slate-800"
                 >
                   <User className="w-4 h-4" />
                   <span>Admin Login</span>

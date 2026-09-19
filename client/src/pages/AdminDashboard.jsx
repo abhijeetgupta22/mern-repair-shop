@@ -216,11 +216,11 @@ export default function AdminDashboard({ onNavigate }) {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
           {/* Shop Setup / Edit Button */}
           <button
             onClick={() => setShowShopSetupModal(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
             title="Edit Shop Name, Address, Gmail ID, Mobile, UPI ID"
           >
             <Store className="w-3.5 h-3.5 text-blue-500" />
@@ -229,7 +229,7 @@ export default function AdminDashboard({ onNavigate }) {
 
           <button
             onClick={() => onNavigate('admin-inventory')}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
+            className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold shadow-sm transition"
           >
             <Boxes className="w-3.5 h-3.5 text-indigo-500" />
             <span>Inventory (+ / -)</span>
@@ -237,7 +237,7 @@ export default function AdminDashboard({ onNavigate }) {
 
           <button
             onClick={() => setShowIntakeModal(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition"
+            className="col-span-2 sm:col-span-1 flex items-center justify-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition"
           >
             <Plus className="w-4 h-4" />
             <span>+ New Repair Intake</span>
@@ -339,7 +339,8 @@ export default function AdminDashboard({ onNavigate }) {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Desktop Table View (>= 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-semibold">
@@ -415,6 +416,74 @@ export default function AdminDashboard({ onNavigate }) {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Cards View (< 768px) */}
+        <div className="md:hidden space-y-3 pt-1">
+          {recentTickets.map((t) => (
+            <div
+              key={t._id || t.ticketId}
+              className="p-4 rounded-2xl bg-slate-50/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 space-y-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white">
+                  #{t.ticketId}
+                </span>
+                <select
+                  value={t.status}
+                  onChange={(e) => handleStatusChange(t._id || t.id, e.target.value)}
+                  className="text-[11px] font-semibold py-1 px-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                >
+                  <option value="RECEIVED">Received</option>
+                  <option value="DIAGNOSING">Diagnosing</option>
+                  <option value="WAITING_PARTS">Waiting Parts</option>
+                  <option value="IN_REPAIR">In Repair</option>
+                  <option value="QUALITY_CHECK">Quality Check</option>
+                  <option value="READY_FOR_DELIVERY">Ready for Delivery</option>
+                  <option value="DELIVERED">Delivered</option>
+                </select>
+              </div>
+
+              <div>
+                <div className="font-bold text-xs text-slate-900 dark:text-white">
+                  {t.device?.brand} {t.device?.model}
+                </div>
+                <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  {t.customer?.name} • <a href={`tel:${t.customer?.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">{t.customer?.phone}</a>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 dark:border-slate-700/60">
+                <span className="text-[10px] uppercase font-bold text-slate-400">Quick Actions:</span>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => handleOpenWhatsAppPreview(t)}
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-600 dark:text-emerald-400 text-xs font-semibold shadow-sm"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </button>
+                  {t.customer?.email && (
+                    <button
+                      onClick={() => setEmailData({
+                        ticket: t,
+                        triggerType: t.status === 'READY_FOR_DELIVERY' ? 'READY_FOR_DELIVERY' : 'INTAKE_CONFIRMATION'
+                      })}
+                      className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/70 text-blue-600 dark:text-blue-400 shadow-sm"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => onNavigate('track', { query: t.ticketId })}
+                    className="p-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 shadow-sm"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

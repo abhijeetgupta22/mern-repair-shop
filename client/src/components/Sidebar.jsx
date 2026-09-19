@@ -31,7 +31,7 @@ export default function Sidebar({ currentPage, onNavigate, onOpenShopProfile }) 
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between h-[calc(100vh-4rem)] sticky top-16 transition-colors duration-200">
+    <aside className="hidden lg:flex w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col justify-between h-[calc(100vh-4rem)] sticky top-16 transition-colors duration-200">
       {/* Top Section */}
       <div className="p-4 space-y-4">
         {/* Admin profile chip */}

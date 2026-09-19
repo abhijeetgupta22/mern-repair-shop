@@ -189,17 +189,18 @@ export default function PublicTrack({ query = '', onNavigate }) {
             </div>
 
             {/* VISUAL STAGES PROGRESS STEPPER */}
-            <div className="pt-8 pb-4">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6 text-center">
+            <div className="pt-6 sm:pt-8 pb-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-5 text-center">
                 Repair Progression Pipeline
               </h3>
 
-              <div className="relative">
+              {/* Desktop Horizontal Stepper (>= 640px) */}
+              <div className="hidden sm:block relative">
                 {/* Background line */}
-                <div className="hidden sm:block absolute top-5 left-8 right-8 h-1 bg-slate-200 dark:bg-slate-800 -z-0"></div>
+                <div className="absolute top-5 left-8 right-8 h-1 bg-slate-200 dark:bg-slate-800 -z-0"></div>
 
                 {/* Stepper items */}
-                <div className="grid grid-cols-2 sm:grid-cols-6 gap-4 relative z-10">
+                <div className="grid grid-cols-6 gap-2 relative z-10">
                   {STEP_STAGES.map((stage, idx) => {
                     const isCompleted = idx <= currentStageIdx;
                     const isCurrent = idx === currentStageIdx;
@@ -224,7 +225,7 @@ export default function PublicTrack({ query = '', onNavigate }) {
                         <span
                           className={`text-xs font-semibold ${
                             isCurrent
-                              ? 'text-blue-600 dark:text-blue-400'
+                              ? 'text-blue-600 dark:text-blue-400 font-bold'
                               : isCompleted
                               ? 'text-slate-800 dark:text-slate-200'
                               : 'text-slate-400'
@@ -236,6 +237,67 @@ export default function PublicTrack({ query = '', onNavigate }) {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Mobile Vertical Timeline (< 640px) */}
+              <div className="sm:hidden space-y-4 px-2">
+                {STEP_STAGES.map((stage, idx) => {
+                  const isCompleted = idx <= currentStageIdx;
+                  const isCurrent = idx === currentStageIdx;
+                  const isLast = idx === STEP_STAGES.length - 1;
+
+                  return (
+                    <div key={stage.key} className="flex items-start gap-3 relative">
+                      {/* Vertical connector line */}
+                      {!isLast && (
+                        <div
+                          className={`absolute left-4 top-8 bottom-0 w-0.5 -ml-[1px] ${
+                            idx < currentStageIdx ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'
+                          }`}
+                        />
+                      )}
+
+                      {/* Step Circle */}
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 z-10 transition-all ${
+                          isCurrent
+                            ? 'bg-blue-600 text-white ring-4 ring-blue-500/20 shadow-md'
+                            : isCompleted
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-300 dark:border-slate-700'
+                        }`}
+                      >
+                        {isCompleted && !isCurrent ? (
+                          <CheckCircle2 className="w-4 h-4" />
+                        ) : (
+                          <span>{idx + 1}</span>
+                        )}
+                      </div>
+
+                      {/* Content */}
+                      <div className="pt-0.5 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-sm font-bold ${
+                              isCurrent
+                                ? 'text-blue-600 dark:text-blue-400'
+                                : isCompleted
+                                ? 'text-slate-900 dark:text-white'
+                                : 'text-slate-400'
+                            }`}
+                          >
+                            {stage.label}
+                          </span>
+                          {isCurrent && (
+                            <span className="px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase tracking-wider animate-pulse">
+                              Current Status
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

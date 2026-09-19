@@ -20,15 +20,15 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div className="relative w-full max-w-3xl max-h-[92vh] flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden">
         {/* Modal Controls (Hidden in Print) */}
-        <div className="no-print flex items-center justify-between p-4 px-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">
+        <div className="no-print flex items-center justify-between p-3 sm:p-4 px-4 sm:px-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-slate-900 dark:text-white">
+            <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate max-w-[140px] sm:max-w-none">
               Invoice #{invoice.invoiceNumber}
             </span>
-            <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${
+            <span className={`px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full ${
               invoice.paymentStatus === 'PAID'
                 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
                 : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
@@ -40,10 +40,11 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
             >
-              <Printer className="w-4 h-4" />
-              <span>Print / Save as PDF</span>
+              <Printer className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Print / Save PDF</span>
+              <span className="xs:hidden">Print</span>
             </button>
             <button
               onClick={onClose}
@@ -55,7 +56,7 @@ export default function InvoicePrintModal({ isOpen, onClose, invoice }) {
         </div>
 
         {/* Invoice Printable Body */}
-        <div className="overflow-y-auto p-8 bg-white text-slate-900 font-sans print:p-0 print:overflow-visible">
+        <div className="overflow-y-auto p-4 sm:p-8 bg-white text-slate-900 font-sans print:p-0 print:overflow-visible">
           {/* Header */}
           <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-6">
             <div>

@@ -278,9 +278,10 @@ export default function AdminBilling({ initialTicketId = null }) {
         </div>
       </div>
 
-      {/* Invoices Table */}
-      <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Invoices Table & Mobile Cards */}
+      <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        {/* Desktop Table (>= 768px) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase font-semibold">
@@ -361,6 +362,80 @@ export default function AdminBilling({ initialTicketId = null }) {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Invoice Cards View (< 768px) */}
+        <div className="md:hidden space-y-3">
+          {invoices.map((inv) => (
+            <div
+              key={inv._id || inv.invoiceNumber}
+              className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-3"
+            >
+              {/* Header: Invoice # & Payment status pill */}
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <span className="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">
+                    {inv.invoiceNumber}
+                  </span>
+                  <div className="text-[10px] text-slate-400">
+                    {new Date(inv.issuedDate || inv.createdAt).toLocaleDateString()} • Ticket #{inv.ticketId}
+                  </div>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                  inv.paymentStatus === 'PAID'
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                    : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                }`}>
+                  {inv.paymentStatus}
+                </span>
+              </div>
+
+              {/* Customer */}
+              <div className="text-xs">
+                <span className="font-bold text-slate-900 dark:text-white">{inv.customer?.name}</span>
+                <span className="text-slate-400 ml-1.5">({inv.customer?.phone})</span>
+              </div>
+
+              {/* Amount Breakdown */}
+              <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between text-xs">
+                <div>
+                  <div className="text-[10px] text-slate-400">Total Billed</div>
+                  <div className="text-sm font-black text-slate-900 dark:text-white">₹{inv.totalAmount}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-emerald-600 font-semibold">Paid: ₹{inv.paidAmount || 0}</div>
+                  {inv.dueAmount > 0 ? (
+                    <div className="text-rose-500 font-bold">Due: ₹{inv.dueAmount}</div>
+                  ) : (
+                    <div className="text-[10px] text-slate-400">Fully Cleared</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-200 dark:border-slate-700/80">
+                {inv.dueAmount > 0 && (
+                  <button
+                    onClick={() => {
+                      setPaymentTarget(inv);
+                      setRecordAmount(inv.dueAmount);
+                    }}
+                    className="flex-1 flex items-center justify-center gap-1 py-2 px-3 text-xs font-bold rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 shadow-sm"
+                  >
+                    <span>+ Record Pay (₹{inv.dueAmount})</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setPrintInvoice(inv)}
+                  className="flex items-center justify-center gap-1.5 py-2 px-4 text-xs font-bold rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print A4 Invoice</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

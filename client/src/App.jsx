@@ -5,6 +5,7 @@ import { SubscriptionProvider } from './context/SubscriptionContext';
 
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import MobileBottomNav from './components/MobileBottomNav';
 import SubscriptionBanner from './components/SubscriptionBanner';
 import PaywallModal from './components/PaywallModal';
 import ShopSetupModal from './components/ShopSetupModal';
@@ -83,8 +84,8 @@ function MainApp() {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 flex">
-        {/* Admin Sidebar if inside protected admin workspace */}
+      <div className="flex-1 flex w-full">
+        {/* Admin Sidebar (Desktop >= 1024px) */}
         {isAdminSection && isAuthenticated && (
           <Sidebar
             currentPage={currentPage}
@@ -93,7 +94,7 @@ function MainApp() {
           />
         )}
 
-        <main className={`flex-1 p-4 sm:p-6 lg:p-8 ${isAdminSection && isAuthenticated ? 'max-w-7xl mx-auto' : 'w-full'}`}>
+        <main className={`flex-1 p-3 sm:p-6 lg:p-8 ${isAdminSection && isAuthenticated ? 'max-w-7xl mx-auto w-full pb-28 lg:pb-8' : 'w-full'}`}>
           {/* Public Pages */}
           {currentPage === 'home' && <PublicHome onNavigate={handleNavigate} />}
           {currentPage === 'track' && (
@@ -128,6 +129,15 @@ function MainApp() {
           )}
         </main>
       </div>
+
+      {/* Admin Mobile Bottom Navigation Bar (Phones & Tablets < 1024px) */}
+      {isAdminSection && isAuthenticated && (
+        <MobileBottomNav
+          currentPage={currentPage}
+          onNavigate={handleNavigate}
+          onOpenShopProfile={() => setShowShopSetup(true)}
+        />
+      )}
 
       {/* Paywall Modal */}
       <PaywallModal />
