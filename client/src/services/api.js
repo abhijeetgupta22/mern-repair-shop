@@ -1,12 +1,16 @@
 import axios from 'axios';
 
+const isLocal =
+  typeof window !== 'undefined' &&
+  (window.location.hostname === 'localhost' ||
+   window.location.hostname === '127.0.0.1' ||
+   window.location.hostname.startsWith('192.168.') ||
+   window.location.hostname.startsWith('10.') ||
+   window.location.hostname.startsWith('172.'));
+
 const API_URL =
   import.meta.env.VITE_API_URL ||
-  (typeof window !== 'undefined' &&
-   window.location.hostname !== 'localhost' &&
-   window.location.hostname !== '127.0.0.1'
-    ? 'https://mern-repair-shop.onrender.com/api'
-    : '/api');
+  (!isLocal ? 'https://mern-repair-shop.onrender.com/api' : '/api');
 
 const api = axios.create({
   baseURL: API_URL,
