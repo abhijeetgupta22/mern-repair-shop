@@ -42,6 +42,16 @@ function MainApp() {
   const [currentPage, setCurrentPage] = useState(getInitialPage);
   const [pageParams, setPageParams] = useState({});
   const [showShopSetup, setShowShopSetup] = useState(false);
+  const [isServerWakingUp, setIsServerWakingUp] = useState(false);
+
+  // Listen for cloud server cold-start indicator
+  useEffect(() => {
+    const handleWakingUp = (e) => {
+      setIsServerWakingUp(!!e.detail?.wakingUp);
+    };
+    window.addEventListener('techfix_server_waking_up', handleWakingUp);
+    return () => window.removeEventListener('techfix_server_waking_up', handleWakingUp);
+  }, []);
 
   // Auto prompt shop setup when admin opens the website right after login if not yet configured
   useEffect(() => {
@@ -78,6 +88,14 @@ function MainApp() {
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
       {/* Top Navbar */}
       <Navbar onNavigate={handleNavigate} currentPage={currentPage} />
+
+      {/* Cloud Server Warming Up Notice (For Free Cloud Tier Cold-Starts) */}
+      {isServerWakingUp && (
+        <div className="bg-amber-500 text-slate-950 text-xs font-bold py-2 px-4 text-center flex items-center justify-center gap-2 shadow-sm z-30 animate-pulse">
+          <div className="w-3.5 h-3.5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+          <span>Connecting to cloud server... Free hosting server is waking up (~30s on first request). Please wait.</span>
+        </div>
+      )}
 
       {/* Admin Subscription Banner if inside protected admin workspace */}
       {isAdminSection && isAuthenticated && (

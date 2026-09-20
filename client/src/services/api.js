@@ -1,30 +1,69 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' &&
+   window.location.hostname !== 'localhost' &&
+   window.location.hostname !== '127.0.0.1'
+    ? 'https://mern-repair-shop.onrender.com/api'
+    : '/api');
 
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 45000,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Request interceptor to attach JWT auth token
+let pendingRequestsCount = 0;
+let wakeUpTimer = null;
+
+// Request interceptor to attach JWT auth token & detect slow server wake-up
 api.interceptors.request.use(
   (config) => {
+    pendingRequestsCount++;
+    if (!wakeUpTimer && typeof window !== 'undefined') {
+      wakeUpTimer = setTimeout(() => {
+        if (pendingRequestsCount > 0) {
+          window.dispatchEvent(new CustomEvent('techfix_server_waking_up', { detail: { wakingUp: true } }));
+        }
+      }, 2500);
+    }
+
     const token = localStorage.getItem('techfix_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    pendingRequestsCount = Math.max(0, pendingRequestsCount - 1);
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor to catch subscription expired or unauthorized
+// Response interceptor to catch subscription expired, unauthorized, or network errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    pendingRequestsCount = Math.max(0, pendingRequestsCount - 1);
+    if (pendingRequestsCount === 0) {
+      if (wakeUpTimer) { clearTimeout(wakeUpTimer); wakeUpTimer = null; }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('techfix_server_waking_up', { detail: { wakingUp: false } }));
+      }
+    }
+    return response;
+  },
   (error) => {
+    pendingRequestsCount = Math.max(0, pendingRequestsCount - 1);
+    if (pendingRequestsCount === 0) {
+      if (wakeUpTimer) { clearTimeout(wakeUpTimer); wakeUpTimer = null; }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('techfix_server_waking_up', { detail: { wakingUp: false } }));
+      }
+    }
+
     if (error.response) {
       // If subscription required/expired
       if (error.response.status === 402) {
@@ -38,9 +77,12 @@ api.interceptors.response.use(
         localStorage.removeItem('techfix_admin');
         window.location.hash = 'admin-login';
       }
+    } else if (error.message && error.message.includes('Network Error')) {
+      console.warn('[API] Cloud server is spinning up from idle state. Please wait...');
     }
     return Promise.reject(error);
   }
 );
 
+export { API_URL };
 export default api;
